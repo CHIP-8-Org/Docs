@@ -1,0 +1,131 @@
+\documentclass[a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[a4paper]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{eurosym}
+\usepackage{caption, subcaption}
+\usepackage{tikz, circuitikz}
+\usepackage{pgf-umlcd, pgf-umlsd}
+
+\renewcommand{\umltextcolor}{black}
+\renewcommand{\umldrawcolor}{black}
+\renewcommand{\umlfillcolor}{white}
+
+\setlength{\parskip}{1.2ex}
+\setlength{\parindent}{0em}
+\clubpenalty = 100
+\widowpenalty = 100
+
+\title{CHIP-8 STM32}
+\date{\today}
+\author{Federico Bruzzone, Lorenzo Ferrante, Andrea Longoni \\
+\footnotesize \texttt{\{federico.bruzzone, lorenzo.ferrante1, andrea.longoni3\}@studenti.unimi.it} \\ }
+
+\begin{document}
+\maketitle
+
+\section{Introduzione}
+
+CHIP-8 è un linguaggio di programmazione creato a metà degli anni '70 da
+Joseph Weisbecker per semplificare lo sviluppo di videogiochi per microcomputer
+a 8 bit. I programmi CHIP-8 vengono interpretati da una macchina virtuale che è
+stata estesa parecchie volte nel corso degli anni, tra le versioni più adottate
+citiamo S-CHIP e la più recente XO-CHIP.
+
+La semplicità dell'interprete in aggiunta alla sua lunga storia e popolarità
+hanno fatto sì che emulatori e programmi CHIP-8 vengano realizzati ancora oggi.
+Nel corso degli anni molti videogiochi storici sono stati "portati" su CHIP-8
+tra cui Pong, Space Invaders e Tetris.
+
+Lo scopo del progetto è quello di costruire un emulatore CHIP-8 e S-CHIP in
+grado di funzionare su un microcontrollore STM32.
+
+\section{Hardware}
+
+% TODO
+
+\begin{figure}
+\begin{center}
+    \includegraphics[scale=0.20]{figures/stm32f334.jpg}
+\end{center}
+\caption{Il microcontrollore \texttt{STM32F334R8T6}.}
+\label{fig:weact_blackpill}
+\end{figure}
+
+\begin{figure}[h]
+    \begin{subfigure}[b]{0.45\textwidth}
+        \begin{center}
+            \includegraphics[scale=0.4]{figures/ili9341.png}
+        \end{center}
+        \caption{Lo schermo ILI9341.}
+        \label{fig:ili9341}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \begin{center}
+            \begin{tikzpicture}[x=0.015cm, y=0.015cm, scale=0.75, transform shape]
+                \input{figures/ili9341.tex}
+            \end{tikzpicture}
+        \end{center}
+        \caption{Pinout dello schermo \texttt{ILI9341}.}
+        \label{fig:pinout_ili}
+    \end{subfigure}
+\end{figure}
+
+\subsection{Materiali e costi} % ALT: Componenti e costi / Componenti utilizzati e relativi costi
+
+\begin{center}
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|llll|l|}
+            \hline
+            \multicolumn{1}{|l|}{\textbf{Descrizione}}          & \multicolumn{1}{l|}{\textbf{Modello}}       & \multicolumn{1}{l|}{\textbf{Costo unitario}} & \textbf{Unità} & \textbf{Costo} \\ \hline
+            \multicolumn{1}{|l|}{Microcontrollore}       & \multicolumn{1}{l|}{STM32 F334R8T6}         & \multicolumn{1}{l|}{14.99}                   & 1               & 14.99          \\ \hline
+            \multicolumn{1}{|l|}{Schermo}                & \multicolumn{1}{l|}{ILI9341 2.4"}           & \multicolumn{1}{l|}{6.50}                    & 1               & 6.50           \\ \hline
+            \multicolumn{1}{|l|}{Tastierino}          & \multicolumn{1}{l|}{Matrix keypad 4$\times$4} & \multicolumn{1}{l|}{3.99}                    & 1               & 3.99           \\ \hline
+            \multicolumn{1}{|l|}{Beeper}                 & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{0.99}                    & 1               & 0.99           \\ \hline
+            \multicolumn{1}{|l|}{Breadboard e cablaggio} & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{4.99}                    & 1               & 4.99           \\ \hline
+            \multicolumn{4}{|r|}{\textbf{Totale}}                                                      & 31.50\euro    \\ \hline
+        \end{tabular}
+        \caption{
+            Materiali utilizzati per la costruzione del progetto. I costi indicati provengono da negozi online come Amazon e eBay.
+        }
+    \end{table}
+\end{center}
+
+\section{Software}
+
+% TODO
+
+\subsection{Emulatore} % ALT: Emulatore CHIP-8 / Interprete CHIP-8
+
+% TODO
+
+\subsubsection{Timing}
+
+% TODO
+
+\subsubsection{Testing}
+
+% TODO
+
+\subsubsection{Ottimizzazioni}
+
+% TODO
+
+\subsubsection{Quirks}
+
+% TODO
+
+\section{Analisi del consumo energetico} % ALT: Alimentazione e consumi
+
+% TODO
+
+\section{Considerazioni finali} % ALT: Conclusioni e sviluppi futuri
+
+% TODO
+
+\end{document}
