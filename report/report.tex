@@ -29,21 +29,38 @@
 
 \section{Introduzione}
 
-CHIP-8 è un linguaggio di programmazione creato a metà degli anni '70 da
-Joseph Weisbecker per semplificare lo sviluppo di videogiochi per microcomputer
-a 8 bit. I programmi CHIP-8 vengono interpretati da una macchina virtuale che è
-stata estesa parecchie volte nel corso degli anni, tra le versioni più adottate
-citiamo S-CHIP e la più recente XO-CHIP.
+% TODO: includere una foto dell'emulatore finito e funzionante
 
-La semplicità dell'interprete in aggiunta alla sua lunga storia e popolarità
-hanno fatto sì che emulatori e programmi CHIP-8 vengano realizzati ancora oggi.
-Nel corso degli anni molti videogiochi storici sono stati "portati" su CHIP-8
-tra cui Pong, Space Invaders e Tetris.
+CHIP-8 è un linguaggio di programmazione creato a metà degli anni '70
+da Joseph Weisbecker per semplificare lo sviluppo di videogiochi per
+microcomputer a 8 bit. I programmi CHIP-8 vengono interpretati da una
+macchina virtuale che è stata estesa parecchie volte nel corso degli
+anni, tra le versioni più adottate citiamo S-CHIP e la più recente
+XO-CHIP.
 
-Lo scopo del progetto è quello di costruire un emulatore CHIP-8 e S-CHIP in
-grado di funzionare su un microcontrollore STM32.
+La semplicità dell'interprete in aggiunta alla sua lunga storia e
+popolarità hanno fatto sì che emulatori e programmi CHIP-8 vengano
+realizzati ancora oggi.
+Nel corso degli anni molti videogiochi storici sono stati riscritti
+in CHIP-8 tra cui Pong, Space Invaders e Tetris.
+
+Lo scopo del progetto è quello di costruire un emulatore CHIP-8 e
+S-CHIP in grado di funzionare su un microcontrollore STM32.
+
+In questo documento ci riferiremo alla macchina virtuale che
+interpreta programmi CHIP-8 con "interprete". Mentre utilizzeremo
+"emulatore" per indicare l'interprete assieme ad una sua
+implementazione (o "port"), ovvero un programma che gestisce
+l'audio, il video, l'input da tastiera e interagisce con l'API della
+macchina virtuale.
+
+% TODO: migliorare lo scopo del progetto e accennare alle periferiche
 
 \section{Hardware}
+
+% TODO
+
+\subsection{Schema di collegamento}
 
 % TODO
 
@@ -52,7 +69,7 @@ grado di funzionare su un microcontrollore STM32.
     \includegraphics[scale=0.20]{figures/stm32f334.jpg}
 \end{center}
 \caption{Il microcontrollore \texttt{STM32F334R8T6}.}
-\label{fig:weact_blackpill}
+\label{fig:stm32f334}
 \end{figure}
 
 \begin{figure}[h]
@@ -98,25 +115,139 @@ grado di funzionare su un microcontrollore STM32.
 
 \section{Software}
 
-% TODO
+Il nostro software si divide in due componenti principali:
+l'interprete CHIP-8 e l'infrastruttura necessaria per "portarlo"
+su un microcontrollore STM32, ovvero l'interfaccia con lo schermo
+e i gestori per la scheda microSD, per il keypad e per il beeper.
 
-\subsection{Emulatore} % ALT: Emulatore CHIP-8 / Interprete CHIP-8
+\subsection{Interprete CHIP-8}
 
-% TODO
+Abbiamo deciso di scrivere l'interprete da zero e per farlo è
+stato necessario consultare le specifiche (de facto standard)
+che definiscono il comportamento di un interprete
+CHIP-8 \cite{cowgod:chip8} e S-CHIP \cite{cowgod:schip}.
+
+L'interprete è scritto in C99, non ha I/O ed è freestanding
+\cite{n1256:conformance}, ovvero non dipende dalla libreria
+standard del C. Tutto questo è mirato a rendere l'interprete
+altamente portabile.
+
+Per rimuovere la dipendenza dalla libreria standard del C è stato
+necessario includere alcune funzioni direttamente da libgcc, trovare
+un modo alternativo per implementare le asserzioni e includere una
+funzione ad hoc per la generazione di numeri casuali.
+
+% TODO: aggiungere breve spiegazione della macchina virtuale
+
+Per testare più comodamente l'interprete abbiamo sviluppato
+un semplice emulatore su desktop utilizzando SDL2
+\cite{libsdl:about}, una libreria scritta in C che consente di
+gestire audio, video e input da tastiera.
+In seguito l'interprete è stato sottoposto ad un'apposita
+test suite \cite{github:chip8-test-suite} che mira a verificare
+il comportamento corretto di ciascun opcode.
 
 \subsubsection{Timing}
 
-% TODO
+% TODO: spiegare meglio cosa si intende col timing e
+% introdurre il problema legato ai timer vs frequenza dell'emu
 
-\subsubsection{Testing}
+Uno dei problemi principali durante lo sviluppo di un emulatore è
+la gestione del timing.
 
-% TODO
+In particolare abbiamo voluto disaccoppiare la frequenza
+dell'emulatore (variabile e regolabile dal giocatore) dalla
+frequenza del delay timer e del sound timer (costante a 60 Hz).
+
+La frequenza dell'emulatore equivale al numero di istruzioni che
+esegue ogni secondo.
+
+Abbiamo sperimentato con due approcci diversi, nel primo il ritardo
+del game loop è variabile e dipende dalla frequenza
+dell'emulatore selezionata dal giocatore e ogni ciclo di emulazione
+gestisce esattamente un'istruzione.
+Mentre i timer vengono decrementati ogni n-esima iterazione del game
+loop, dove n = EMU\_FREQ / 60.
+
+Ad esempio, se EMU\_FREQ = 540, i timer vengono
+decrementati ogni 9º ciclo (540 / 60 = 9).
+
+Nel secondo approccio il ritardo del game loop è costante
+a 16.666 ms per ottenere un frame rate di 60fps. In questo approccio,
+ogni ciclo di emulazione gestisce un numero variabile di istruzioni.
+Ad esempio, se EMU\_FREQ = 540, ogni ciclo di emulazione gestisce
+9 istruzioni.
+
+Dopo un attenta riflessione abbiamo deciso di impiegare il secondo
+approccio. Il principale svantaggio del primo approccio è che chiama
+una funzione simil-sleep per un periodo molto breve dopo ogni
+istruzione, se EMU\_FREQ = 540, il ritardo di una sleep sarebbe
+di circa 1.85 ms. Purtroppo questo tipo di funzione non offre questo
+genere di precisione.
+
+Per questo motivo abbiamo deciso di disaccoppiare la frequenza dei
+timer (costante a 60 Hz) dalla frequenza dell'emulatore (variabile e
+regolabile dal giocatore) utilizzando il secondo approccio.
+
+Il ritardo del game loop è costante a 16.666 ms (per ottenere
+un frame rate di 60 fps), mentre il numero di istruzioni eseguite
+in ogni ciclo di emulazione è variabile.
+
+Ciò consente di decrementare i timer dopo ogni ciclo di emulazione
+a un tasso costante di 60 Hz.
+
+Abbiamo considerato anche eventuali problematiche che sarebbero
+potute sorgere con il secondo approccio. In particolare abbiamo
+considerato il fatto che anche se non tutte le istruzioni richiedono
+lo stesso tempo per essere eseguite, anche la più lenta richiede
+una quantità trascurabile di tempo. Ciò significa che possiamo
+comportarci come se tutte le istruzioni richiedessero il medesimo
+tempo.
+
+% TODO: non tutte le DRW vengono renderizzate
 
 \subsubsection{Ottimizzazioni}
 
-% TODO
+\begin{figure}
+    \begin{center}
+        \includegraphics[scale=0.50]{figures/screenopt.pdf}
+    \end{center}
+    \caption{Esempio della mappatura di un pixel.}
+    \label{fig:screenopt}
+\end{figure}
+
+% TODO: Update dello schermo solo se è cambiato lo schermo
+
+È stato necessario introdurre delle ottimizzazioni all'interno
+dell'interprete per poterlo far girare su un microcontrollore.
+
+L'ottimizzazione principale è legata alla rappresentazione
+dello schermo in memoria. Ad alto livello lo schermo può essere
+visto come una matrice di 128x64 pixel monocromi. Purtroppo però
+una rappresentazione simile, dove ciascun pixel viene rappresentato
+da un byte occuperebbe 8192 byte, e dobbiamo considerare il fatto
+che il nostro microcontrollore ha a disposizione solamente di 16 Kb
+di SRAM.
+
+Per questo motivo abbiamo deciso di rappresentare lo schermo come
+un array unidimensionale di 1024 byte, dove ciascun pixel viene
+rappresentato con un singolo bit. Questa decisione ha aggiunto però
+un livello di indirezione dato che una coordinata ad alto livello
+sulla matrice 128x64 deve essere mappata ad una coordinata
+"in memoria".
 
 \subsubsection{Quirks}
+
+% TODO
+
+% Le piattaforme supportate dall'interprete sono CHIP-8, CHIP-48,
+% S-CHIP 1.0 e S-CHIP 1.1.
+
+\subsection{Architettura}
+
+% TODO: aggiornare il class diagram e il sequence diagram
+
+% \section{Assemblaggio}
 
 % TODO
 
@@ -127,5 +258,9 @@ grado di funzionare su un microcontrollore STM32.
 \section{Considerazioni finali} % ALT: Conclusioni e sviluppi futuri
 
 % TODO
+
+\addcontentsline{toc}{section}{Riferimenti bibliografici}
+\bibliographystyle{plain}
+\bibliography{report}
 
 \end{document}
