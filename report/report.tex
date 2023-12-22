@@ -137,9 +137,9 @@ Il delay timer viene utilizzato come cronometro mentre il sound
 timer è utilizzato per gestire gli effetti sonori, quando il suo
 valore è diverso da zero, l'emulatore attiva il beeper.
 
-% Ad ogni ciclo di esecuzione l'interprete effettua il fetch
-% dell'istruzione puntata dal program counter in memoria,
-% la decodifica e la esegue.
+Ad ogni ciclo di esecuzione l'interprete effettua il fetch
+dell'istruzione puntata dal program counter in memoria,
+la decodifica e la esegue.
 
 Sono supportate 45 istruzioni diverse, ciascuna delle
 quali è rappresentata da uno specifico opcode in cui al suo interno
@@ -147,13 +147,13 @@ sono passati anche eventuali parametri.
 
 Il programma è scritto in C99, non ha I/O ed è freestanding
 \cite{n1256:conformance}, ovvero non dipende dalla libreria
-standard del C. Tutto questo è mirato a rendere l'interprete
+standard del C (libc). Tutto questo è mirato a rendere l'interprete
 altamente portabile.
 
-Per rimuovere la dipendenza dalla libreria standard del C è stato
-necessario includere alcune funzioni direttamente da libgcc, trovare
-un modo alternativo per implementare le asserzioni e includere una
-funzione ad hoc per la generazione di numeri casuali.
+Per rimuovere la dipendenza da libc è stato necessario includere
+alcune funzioni direttamente da libgcc, trovare un modo alternativo
+per implementare le asserzioni e includere una funzione ad hoc per
+la generazione di numeri casuali.
 
 Infine per testare più comodamente l'interprete abbiamo sviluppato
 un semplice emulatore su desktop utilizzando SDL2
