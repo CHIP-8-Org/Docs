@@ -1,0 +1,34 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define RAM\PYGZus{}SIZE 4096}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define SCREEN\PYGZus{}SIZE 1024         }\PYG{c+c1}{// 128x64 pixels = 8192 bits = 1024 bytes}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define KEYPAD\PYGZus{}SIZE 16}
+
+\PYG{k}{typedef}\PYG{+w}{ }\PYG{k}{struct}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{RAM}\PYG{p}{[}\PYG{n}{RAM\PYGZus{}SIZE}\PYG{p}{]}\PYG{p}{;}
+
+\PYG{+w}{    }\PYG{k+kt}{uint16\PYGZus{}t}\PYG{+w}{ }\PYG{n}{I}\PYG{p}{;}\PYG{+w}{                  }\PYG{c+c1}{// Index register}
+\PYG{+w}{    }\PYG{k+kt}{uint16\PYGZus{}t}\PYG{+w}{ }\PYG{n}{PC}\PYG{p}{;}\PYG{+w}{                 }\PYG{c+c1}{// Program counter}
+
+\PYG{+w}{    }\PYG{k+kt}{uint16\PYGZus{}t}\PYG{+w}{ }\PYG{n}{stack}\PYG{p}{[}\PYG{l+m+mi}{16}\PYG{p}{]}\PYG{p}{;}
+\PYG{+w}{    }\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{SP}\PYG{p}{;}\PYG{+w}{                  }\PYG{c+c1}{// Stack pointer}
+
+\PYG{+w}{    }\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{V}\PYG{p}{[}\PYG{l+m+mi}{16}\PYG{p}{]}\PYG{p}{;}\PYG{+w}{               }\PYG{c+c1}{// Variable registers}
+\PYG{+w}{    }\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{hp48\PYGZus{}flags}\PYG{p}{[}\PYG{l+m+mi}{8}\PYG{p}{]}\PYG{p}{;}\PYG{+w}{       }\PYG{c+c1}{// HP\PYGZhy{}48\PYGZsq{}s \PYGZdq{}RPL user flag\PYGZdq{} registers (S\PYGZhy{}CHIP)}
+
+\PYG{+w}{    }\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{screen}\PYG{p}{[}\PYG{n}{SCREEN\PYGZus{}SIZE}\PYG{p}{]}\PYG{p}{;}
+\PYG{+w}{    }\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{keypad}\PYG{p}{[}\PYG{n}{KEYPAD\PYGZus{}SIZE}\PYG{p}{]}\PYG{p}{;}
+\PYG{+w}{    }\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{wait\PYGZus{}for\PYGZus{}key}\PYG{p}{;}
+
+\PYG{+w}{    }\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{DT}\PYG{p}{;}\PYG{+w}{                  }\PYG{c+c1}{// Delay timer}
+\PYG{+w}{    }\PYG{k+kt}{uint8\PYGZus{}t}\PYG{+w}{ }\PYG{n}{ST}\PYG{p}{;}\PYG{+w}{                  }\PYG{c+c1}{// Sound timer}
+
+\PYG{+w}{    }\PYG{k+kt}{uint16\PYGZus{}t}\PYG{+w}{ }\PYG{n}{opcode}\PYG{p}{;}\PYG{+w}{             }\PYG{c+c1}{// Current opcode}
+\PYG{+w}{    }\PYG{k+kt}{uint64\PYGZus{}t}\PYG{+w}{ }\PYG{n}{rng}\PYG{p}{;}\PYG{+w}{                }\PYG{c+c1}{// PRNG state}
+\PYG{+w}{    }\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{IPF}\PYG{p}{;}\PYG{+w}{                     }\PYG{c+c1}{// No. instructions executed each frame}
+
+\PYG{+w}{    }\PYG{k+kt}{bool}\PYG{+w}{ }\PYG{n}{hi\PYGZus{}res}\PYG{p}{;}\PYG{+w}{                 }\PYG{c+c1}{// Enable 128x64 hi\PYGZhy{}res mode (S\PYGZhy{}CHIP)}
+\PYG{+w}{    }\PYG{k+kt}{bool}\PYG{+w}{ }\PYG{n}{screen\PYGZus{}updated}\PYG{p}{;}\PYG{+w}{         }\PYG{c+c1}{// Was the screen updated?}
+
+\PYG{+w}{    }\PYG{n}{Platform}\PYG{+w}{ }\PYG{n}{platform}\PYG{p}{;}\PYG{+w}{           }\PYG{c+c1}{// CHIP\PYGZhy{}8, CHIP\PYGZhy{}48/S\PYGZhy{}CHIP 1.0 or S\PYGZhy{}CHIP 1.1 behavior?}
+\PYG{p}{\PYGZcb{}}\PYG{+w}{ }\PYG{n}{Chip8}\PYG{p}{;}
+\end{Verbatim}

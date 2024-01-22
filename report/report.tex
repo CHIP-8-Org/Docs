@@ -1,5 +1,16 @@
 \documentclass[a4paper]{article}
 
+\usepackage{showcode/showcode}
+% \begin{center}
+% \showc*[.75\textwidth]{test.c}
+% \end{center}
+
+% \begin{Listing} % [ht]
+%     \centering
+%         \showc*[.5\textwidth]{test.c}
+%         \caption{A C program.}\label{c}
+% \end{Listing}
+
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
@@ -127,11 +138,20 @@ stato necessario consultare le specifiche (de facto standard)
 che definiscono il comportamento di un interprete
 CHIP-8 \cite{cowgod:chip8} e S-CHIP \cite{cowgod:schip}.
 
+
 L'interprete ha un'architettura basata su registri e possiede 4 KB
 di memoria, 16 registri general purpose, un registro per gli
 indirizzi di memoria, un registro per il delay timer,
 un registro per il sound timer, uno stack per gestire le
-chiamate a subroutine, uno stack pointer e un program counter.
+chiamate a subroutine, uno stack pointer e un program counter, come si puo`
+vedere nel listato [\ref{chip8_struct}].
+
+\begin{Listing} % [ht]
+    \centering
+    \showc*{chip8_struct.c} %[.5\textwidth]
+    \caption{Struttura dell'emulatore Chip8}
+    \label{chip8_struct}
+\end{Listing}
 
 Il delay timer viene utilizzato come cronometro mentre il sound
 timer è utilizzato per gestire gli effetti sonori, quando il suo
@@ -151,9 +171,22 @@ standard del C (libc). Tutto questo è mirato a rendere l'interprete
 altamente portabile.
 
 Per rimuovere la dipendenza da libc è stato necessario includere
-alcune funzioni direttamente da libgcc, trovare un modo alternativo
-per implementare le asserzioni e includere una funzione ad hoc per
+alcune funzioni direttamente da libgcc, in particolare abbiamo re-implementato
+le funzioni \texttt{memset} e \texttt{memcpy}
+(listato [\ref{libgcc_memset_memcpy}]). Inoltre, abbiamo trovato un modo
+alternativo per implementare le asserzioni e includere una funzione ad hoc per
 la generazione di numeri casuali.
+
+\begin{Listing} % [ht]
+\centering
+\mbox{
+  \showc[.45\textwidth]{libgcc_memset.c}
+  \quad
+  \showc[.50\textwidth]{libgcc_memcpy.c}
+}
+\caption{Implementazioni di \texttt{memset} e \texttt{memcpy}}
+\label{libgcc_memset_memcpy}
+\end{Listing}
 
 Infine per testare più comodamente l'interprete abbiamo sviluppato
 un semplice emulatore su desktop utilizzando SDL2
