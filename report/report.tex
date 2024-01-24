@@ -1,6 +1,11 @@
 \documentclass[a4paper]{article}
 
 \usepackage{showcode/showcode}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+
 % \begin{center}
 % \showc*[.75\textwidth]{test.c}
 % \end{center}
@@ -25,18 +30,76 @@
 \renewcommand{\umldrawcolor}{black}
 \renewcommand{\umlfillcolor}{white}
 
-\setlength{\parskip}{1.2ex}
-\setlength{\parindent}{0em}
-\clubpenalty = 100
-\widowpenalty = 100
+% \setlength{\parskip}{1.2ex}
+% \setlength{\parindent}{0em}
+% \clubpenalty = 100
+% \widowpenalty = 100
 
-\title{CHIP-8 STM32}
-\date{\today}
-\author{Federico Bruzzone, Lorenzo Ferrante, Andrea Longoni \\
-\footnotesize \texttt{\{federico.bruzzone, lorenzo.ferrante1, andrea.longoni3\}@studenti.unimi.it} \\ }
+% \title{CHIP-8 STM32}
+% \date{\today}
+% \author{Federico Bruzzone, Lorenzo Ferrante, Andrea Longoni \\
+% \footnotesize \texttt{\{federico.bruzzone, lorenzo.ferrante1, andrea.longoni3\}@studenti.unimi.it} \\ }
+
+
+
+\textwidth=450pt
+\oddsidemargin=0pt
+\textheight=665pt
+\voffset=-50pt
+
+% \singlespacing
 
 \begin{document}
-\maketitle
+% \maketitle
+% \newpage
+
+\begin{titlepage}
+	\begin{center}
+		\includegraphics[height=5cm]{minerva.pdf}
+
+		\vspace*{1.75cm}
+
+		\LARGE
+
+		\textbf{MSc in Computer Science} \\
+		at University of Milan
+
+		\vspace*{1cm}
+
+		\huge
+		CHIP-8 STM32
+
+		\large Proposta per il Progetto di PROS, \\
+		corso tenuto da \textbf{Danilo Bruschi}
+
+		\normalsize
+		\vspace*{4cm}
+
+		\begin{minipage}[t]{0.47\textwidth}
+			{Email: } \vspace{0.3em} \\
+			{\large \href{federico.bruzzone@studenti.unimi.it}{federico.bruzzone@studenti.unimi.it}} \vspace{1em}  \\
+			{\large \href{lorenzo.ferrante1@studenti.unimi.it}{lorenzo.ferrante1@studenti.unimi.it}} \vspace{1em}  \\
+			{\large \href{andrea.longoni3@studenti.unimi.it}{andrea.longoni3@studenti.unimi.it}} \vspace{1em}  \\
+		\end{minipage}
+		\hfill
+		\begin{minipage}[t]{0.47\textwidth}\raggedleft
+			{Creato da:} \hspace{-0.9em} \vspace{0.3em} \\
+			{\large \textbf{Federico Bruzzone}} \\
+			\vspace{1em}
+			{\large \textbf{Lorenzo Ferrante}} \\
+			\vspace{1em}
+			{\large \textbf{Andrea Longoni}}
+		\end{minipage}
+
+		\vfill
+		Anno accademico 2022/2023
+
+	\end{center}
+\end{titlepage}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.8em}
+\linespread{1.5}
+
 
 \section{Introduzione}
 
@@ -69,24 +132,59 @@ macchina virtuale.
 
 \section{Hardware}
 
-% TODO
+Le componenti principali utilizzate per la relizzazione del progetto sono 5:
+una scheda ST \texttt{STM32F334R8T6} (Fig. \ref{fig:stm32f334}), uno schermo
+TFT LCD ILI9341 (Fig. \ref{fig:ili9341}), e un lettore di schede microSD
+integrato nello schermo, un tastierino matriciale 4$\times$4 e un beeper.
 
-\subsection{Schema di collegamento}
+Il componente principale é il microcontrollore \texttt{STM32F334R8T6} basato su
+architettura ARM con processore Cortex-M4 da 72 \texttt{MHz}, 64 \texttt{Kb} di
+memoria flash e 16 \texttt{Kb} di SRAM. Abbiamo deciso di utilizzare questa
+scheda perché le ROM dei giochi CHIP-8 e S-CHIP hanno dimensione massima di 4
+\texttt{Kb}. Considerando questo e il fatto che la macchina virtuale necessita
+4 \texttt{Kb} per poter funzionare non è stato potuto utilizzare la scheda
+\texttt{STM32L053R8T6} fornitaci durante il corso a causa della sua quantità
+limita di SRAM, precisamente 8 \texttt{Kb}.
 
-% TODO
-
-\begin{figure}
-\begin{center}
-    \includegraphics[scale=0.20]{figures/stm32f334.jpg}
-\end{center}
-\caption{Il microcontrollore \texttt{STM32F334R8T6}.}
-\label{fig:stm32f334}
-\end{figure}
+% \begin{figure}[h]
+% \begin{center}
+%     \includegraphics[scale=0.15]{figures/stm32f334.jpg}
+% \end{center}
+% \caption{Il microcontrollore \texttt{STM32F334R8T6}.}
+% \label{fig:stm32f334}
+% \end{figure}
 
 \begin{figure}[h]
     \begin{subfigure}[b]{0.45\textwidth}
         \begin{center}
-            \includegraphics[scale=0.4]{figures/ili9341.png}
+            \includegraphics[scale=0.15]{figures/stm32f334.jpg}
+        \end{center}
+        \caption{LIl microcontrollore \texttt{STM32F334R8T6}.}
+        \label{fig:ili9341}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \begin{center}
+            \begin{tikzpicture}[x=0.015cm, y=0.015cm, scale=0.50, transform shape]
+                \input{figures/stm32f334.tex}
+            \end{tikzpicture}
+        \end{center}
+        \caption{Pinout del microcontrollore \texttt{STM32F334R8T6}.}
+        \label{fig:pinout_ili}
+    \end{subfigure}
+\end{figure}
+
+Necessiteremo inoltre di un display TFT LCD (thin-film-transistor
+liquid-crystal display) a colori retroilluminato, per poterci interfacciare
+col gioco. Questo display, da 2.4 pollici, é basato sul controller
+\texttt{ILI9341} e ha una risoluzione di 320$\times$240 \texttt{px}.
+
+Il display dispone di un lettore di schede microSD, che verrà utilizzato per caricare una delle ROM presenti sulla SD in SRAM.
+
+\begin{figure}[h]
+    \begin{subfigure}[b]{0.45\textwidth}
+        \begin{center}
+            \includegraphics[scale=0.30]{figures/ili9341.png}
         \end{center}
         \caption{Lo schermo ILI9341.}
         \label{fig:ili9341}
@@ -94,7 +192,7 @@ macchina virtuale.
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
         \begin{center}
-            \begin{tikzpicture}[x=0.015cm, y=0.015cm, scale=0.75, transform shape]
+            \begin{tikzpicture}[x=0.015cm, y=0.015cm, scale=0.65, transform shape]
                 \input{figures/ili9341.tex}
             \end{tikzpicture}
         \end{center}
@@ -102,6 +200,28 @@ macchina virtuale.
         \label{fig:pinout_ili}
     \end{subfigure}
 \end{figure}
+
+Per interagire con l'emulatore utilizzeremo una tastiera matriciale 4$\times$4 corrispondente alla tastiera esadecimale originale.
+
+Per riprodurre gli effetti sonori generati dal gioco utilizzeremo un beeper a frequenza variabile. In CHIP-8 e S-CHIP vi é un solo tipo di suono che può essere riprodotto durante tutta l'esecuzione del gioco. Infine sarà possibile aggiungere uno slot per l'alimentazione tramite due batterie \texttt{AA}.
+
+La piattaforma scelta per lo sviluppo del progetto é il microcontrollore
+STM32F334R8T6, un microcontrollore a 32 bit con 16 KB di SRAM e 64 KB di
+Flash. Il microcontrollore é dotato di un clock a 72 MHz, 51 pin GPIO,
+
+\subsection{Schema di collegamento}
+
+\begin{figure}[h]
+    \begin{center}
+        \includegraphics[scale=0.50]{figures/STM32_CHIP8.pdf}
+    \end{center}
+    \caption{Schematic del progetto.}
+    \label{fig:schematic}
+\end{figure}
+
+% TODO
+
+
 
 \subsection{Materiali e costi} % ALT: Componenti e costi / Componenti utilizzati e relativi costi
 
@@ -272,15 +392,25 @@ rappresentato da un singolo bit. In questo modo otteniamo un
 risparmio di spazio pari a ben l'87.5\%.
 
 Questa decisione ha aggiunto però un livello di indirezione dato
-che una coordinata ad alto livello sulla matrice 128x64 deve essere
-mappata ad una coordinata "in memoria".
+che una coordinata ad alto livello sulla matrice 128x64 é mappata
+ad una coordinata "in memoria", dove la prima componente é l'indice
+del byte nell'array unidimensionale e la seconda componenete é il bit
+all'interno del byte. La figura [\ref{fig:screenopt}] mostra un esempio
+di mappatura di un pixel. Piú precisamente la funzione $F$ é definita
+come segue:
+\begin{gather*}
+    F: \mathbb{N} \times \mathbb{N} \rightarrow \mathbb{N} \times \mathbb{N} \\
+    F(x, y) = \left(\left\lfloor \frac{128y + x}{8} \right\rfloor, 7 - (x \bmod 8)\right) \\
+    where \quad x \in [0, 127] \quad y \in [0, 63] \\
+\end{gather*}
 
 Un'ulteriore ottimizzazione viene resa disponibile attraverso l'API
 dell'interprete sotto forma di una funzione che consente al chiamante
 di controllare se l'array che rappresenta lo schermo è stato
-modificato nell'ultimo ciclo di esecuzione. In questo modo la grafica
-viene renderizzata dal chiamante solo quando è effettivamente
-necessario.
+modificato nell'ultimo ciclo di esecuzione. Avendo notato che il numero di
+opcode che modificano lo schermo è molto limitato, precisamente sono solo 7 su
+45, questa funzione consente di ridurre di 6.42 volte il numero di volte in cui
+lo schermo viene aggiornato.
 
 \subsubsection{Comportamenti ambigui}
 
@@ -322,6 +452,10 @@ maggioranza dei videogiochi reperibili in rete.
 % TODO
 
 \section{Considerazioni finali} % ALT: Conclusioni e sviluppi futuri
+
+\section{Sviluppi futuri}
+
+Aggiornare solo la sprite che è stata modificata.
 
 % TODO
 
