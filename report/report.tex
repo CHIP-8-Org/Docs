@@ -146,21 +146,14 @@ scheda perché le ROM dei giochi CHIP-8 e S-CHIP hanno dimensione massima di 4
 \texttt{STM32L053R8T6} fornitaci durante il corso a causa della sua quantità
 limita di SRAM, precisamente 8 \texttt{Kb}.
 
-% \begin{figure}[h]
-% \begin{center}
-%     \includegraphics[scale=0.15]{figures/stm32f334.jpg}
-% \end{center}
-% \caption{Il microcontrollore \texttt{STM32F334R8T6}.}
-% \label{fig:stm32f334}
-% \end{figure}
 
 \begin{figure}[h]
     \begin{subfigure}[b]{0.45\textwidth}
         \begin{center}
             \includegraphics[scale=0.15]{figures/stm32f334.jpg}
         \end{center}
-        \caption{LIl microcontrollore \texttt{STM32F334R8T6}.}
-        \label{fig:ili9341}
+        \caption{Il microcontrollore \texttt{STM32F334R8T6}.}
+        \label{fig:stm32f334}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
@@ -170,16 +163,16 @@ limita di SRAM, precisamente 8 \texttt{Kb}.
             \end{tikzpicture}
         \end{center}
         \caption{Pinout del microcontrollore \texttt{STM32F334R8T6}.}
-        \label{fig:pinout_ili}
+        \label{fig:pinout_stm32}
     \end{subfigure}
 \end{figure}
 
-Necessiteremo inoltre di un display TFT LCD (thin-film-transistor
-liquid-crystal display) a colori retroilluminato, per poterci interfacciare
-col gioco. Questo display, da 2.4 pollici, é basato sul controller
-\texttt{ILI9341} e ha una risoluzione di 320$\times$240 \texttt{px}.
-
-Il display dispone di un lettore di schede microSD, che verrà utilizzato per caricare una delle ROM presenti sulla SD in SRAM.
+Il secondo componente che abbiamo utilizzato é un display TFT LCD
+(thin-film-transistor liquid-crystal display) a colori retroilluminato
+(Fig. \ref{fig:ili9341}),
+per poterci interfacciare con l'emulatore. Questo display, da 2.4 pollici,
+é basato sul controller \texttt{ILI9341} e ha una risoluzione di
+320$\times$240 \texttt{px}.
 
 \begin{figure}[h]
     \begin{subfigure}[b]{0.45\textwidth}
@@ -201,13 +194,39 @@ Il display dispone di un lettore di schede microSD, che verrà utilizzato per ca
     \end{subfigure}
 \end{figure}
 
-Per interagire con l'emulatore utilizzeremo una tastiera matriciale 4$\times$4 corrispondente alla tastiera esadecimale originale.
+Il terzo componente é un lettore di schede microSD integrato nello schermo
+(Fig. \ref{fig:ili9341}). Questo componente é basato sul controller
+\texttt{ILI9341} che permette di interfacciarsi con una microSD formattata in
+FAT32, sulla quale é possibile salvare file di dimensione massima 4 \texttt{Gb}
+e per un totale di 2 \texttt{Tb} di dati.
 
-Per riprodurre gli effetti sonori generati dal gioco utilizzeremo un beeper a frequenza variabile. In CHIP-8 e S-CHIP vi é un solo tipo di suono che può essere riprodotto durante tutta l'esecuzione del gioco. Infine sarà possibile aggiungere uno slot per l'alimentazione tramite due batterie \texttt{AA}.
+Per interagire con l'emulatore abbamo utilizzato una tastiera matriciale 4$\times$4
+corrispondente alla tastiera esadecimale originale del CHIP-8 (Fig. \ref{fig:4x4_keypad}).
 
-La piattaforma scelta per lo sviluppo del progetto é il microcontrollore
-STM32F334R8T6, un microcontrollore a 32 bit con 16 KB di SRAM e 64 KB di
-Flash. Il microcontrollore é dotato di un clock a 72 MHz, 51 pin GPIO,
+\begin{figure}[h]
+    \begin{subfigure}[b]{0.45\textwidth}
+        \begin{center}
+            \includegraphics[scale=0.090]{figures/4x4_keypad.jpeg}
+        \end{center}
+        \caption{Il tastierino matriciale 4$\times$4.}
+        \label{fig:4x4_keypad}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \begin{center}
+            \includegraphics[scale=0.30]{figures/4x4_keypad_structure.png}
+        \end{center}
+        \caption{Struttura del tastierino matriciale 4$\times$4.}
+        \label{fig:4x4_keypad_structure}
+    \end{subfigure}
+\end{figure}
+
+Come ultimo componenete, per riprodurre gli effetti sonori generati dal gioco
+un beeper passivo monotono é stato collegato al microcontrollore tramite un
+GPIO output e GND. In CHIP-8 e S-CHIP vi é un solo tipo di suono che può
+essere riprodotto durante tutta l'esecuzione del gioco.
+Abbiamo deciso di aggiungere uno slot per l'alimentazione tramite
+due batterie \texttt{AA}.
 
 \subsection{Schema di collegamento}
 
@@ -411,6 +430,17 @@ modificato nell'ultimo ciclo di esecuzione. Avendo notato che il numero di
 opcode che modificano lo schermo è molto limitato, precisamente sono solo 7 su
 45, questa funzione consente di ridurre di 6.42 volte il numero di volte in cui
 lo schermo viene aggiornato.
+
+\subsubsection{SD}
+
+Un'ulteriore ottimizzazione é stata di non abilitare il
+Long File Names (LFN) sul filesystem FAT32 della scheda microSD,
+quindi tutti i file devono avere un nome di al massimo 13 byte
+(caratteri ASCII).
+In questo modo abbiamo risparmiato in termini complessitá di computazione,
+memoria flash e SRAM.
+
+
 
 \subsubsection{Comportamenti ambigui}
 
