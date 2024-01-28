@@ -223,29 +223,60 @@ corrispondente alla tastiera esadecimale originale del CHIP-8 (Fig. \ref{fig:4x4
 
 Come ultimo componenete, per riprodurre gli effetti sonori generati dal gioco
 un beeper passivo monotono é stato collegato al microcontrollore tramite un
-GPIO output e GND. In CHIP-8 e S-CHIP vi é un solo tipo di suono che può
-essere riprodotto durante tutta l'esecuzione del gioco.
-Abbiamo deciso di aggiungere uno slot per l'alimentazione tramite
+GPIO output e GND. In CHIP-8 e S-CHIP vi é un solo frequenza che può
+essere riprodotta durante tutta l'esecuzione del gioco.
+
+In oltre, abbiamo deciso di aggiungere uno slot per l'alimentazione tramite
 due batterie \texttt{AA}.
 
 \subsection{Schema di collegamento}
+
+\subsubsection{Legenda dei colori in Figura \ref{fig:schematic}}
+
+\begin{itemize}
+    \item \textcolor{green}{Verde}: Schermo
+    \item \textcolor{blue}{Blu}: Scheda microSD
+    \item \textcolor{magenta}{Magenta}: Tastierino
+    \item \textcolor{orange}{Arancione}: Beeper
+    \item \textcolor{cyan}{Ciano}: Reset
+    \item \textcolor{black}{Nero}: GND
+    \item \textcolor{red}{Rosso}: Alimentazione
+\end{itemize}
 
 \begin{figure}[h]
     \begin{center}
         \includegraphics[scale=0.50]{figures/STM32_CHIP8.pdf}
     \end{center}
-    \caption{Schematic del progetto.}
+    \caption{
+        Schematic del progetto.
+    }
     \label{fig:schematic}
 \end{figure}
 
-% TODO
+\subsubsection{Descrizione dei componenti}
 
+In Figura \ref{fig:schematic} é possibile vedere lo schema di collegamento
+delle componenti utilizzate per la realizzazione del progetto. Per realizzare
+lo schema é stato utilizzato il software \texttt{KiCad}.
+E' importante notare, che lo schermo \texttt{ILI9341} e l'integrato lettore
+di schede microSD, utilizza lo pinout standard degli Shields di Arduino,
+ovvero un'interfaccia hardware che permette di collegare una scheda Arduino
+ad un modulo esterno. Quindi, é stato collegato al nostro microcontrollore
+STM32 grazie al fatto che entrambi utilizzano lo stesso pinout.
+
+Il tastierino matriciale 4$\times$4 é stato collegato al microcontrollore
+tramite un'interfaccia GPIO, in particolare i 4 pin relativi alle righe
+(\texttt{R1}, \texttt{R2}, \texttt{R3}, \texttt{R4}) sono stati impostati
+in modalitá \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge) e i 4 pin
+relativi alle colonne (\texttt{C1}, \texttt{C2}, \texttt{C3}, \texttt{C4})
+sono stati impostati in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP}
+(push-pull output). \textbf{TODO}
 
 
 \subsection{Materiali e costi} % ALT: Componenti e costi / Componenti utilizzati e relativi costi
 
-\begin{center}
-    \begin{table}[ht]
+% \begin{center}
+    \begin{table}[h] % [ht]
         \centering
         \begin{tabular}{|llll|l|}
             \hline
@@ -261,7 +292,7 @@ due batterie \texttt{AA}.
             Materiali utilizzati per la costruzione del progetto. I costi indicati provengono da negozi online come Amazon e eBay.
         }
     \end{table}
-\end{center}
+% \end{center}
 
 \section{Software}
 
@@ -283,7 +314,7 @@ di memoria, 16 registri general purpose, un registro per gli
 indirizzi di memoria, un registro per il delay timer,
 un registro per il sound timer, uno stack per gestire le
 chiamate a subroutine, uno stack pointer e un program counter, come si puo`
-vedere nel listato [\ref{chip8_struct}].
+vedere nel listato \ref{chip8_struct}.
 
 \begin{Listing} % [ht]
     \centering
@@ -312,7 +343,7 @@ altamente portabile.
 Per rimuovere la dipendenza da libc è stato necessario includere
 alcune funzioni direttamente da libgcc, in particolare abbiamo re-implementato
 le funzioni \texttt{memset} e \texttt{memcpy}
-(listato [\ref{libgcc_memset_memcpy}]). Inoltre, abbiamo trovato un modo
+(listato \ref{libgcc_memset_memcpy}). Inoltre, abbiamo trovato un modo
 alternativo per implementare le asserzioni e includere una funzione ad hoc per
 la generazione di numeri casuali.
 
