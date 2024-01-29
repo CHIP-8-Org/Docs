@@ -267,11 +267,14 @@ STM32 grazie al fatto che entrambi utilizzano lo stesso pinout.
 Il tastierino matriciale 4$\times$4 é stato collegato al microcontrollore
 tramite un'interfaccia GPIO, in particolare i 4 pin relativi alle righe
 (\texttt{R1}, \texttt{R2}, \texttt{R3}, \texttt{R4}) sono stati impostati
-in modalitá \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge) e i 4 pin
-relativi alle colonne (\texttt{C1}, \texttt{C2}, \texttt{C3}, \texttt{C4})
-sono stati impostati in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP}
-(push-pull output). \textbf{TODO}
-
+in modalitá \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge).
+Quando si configura un pin GPIO come sorgente di interrupt su un fronte di
+salita, significa che l'interrupt verrà generato quando il livello logico del
+pin passa da basso (0) a alto (1). Questo è utile, ad esempio, quando si
+desidera intercettare un cambiamento di stato su un pulsante quando viene premuto.
+Invece, i 4 pin relativi alle colonne (\texttt{C1}, \texttt{C2}, \texttt{C3},
+\texttt{C4}) sono stati impostati in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP}
+(push-pull output).
 
 \subsection{Materiali e costi} % ALT: Componenti e costi / Componenti utilizzati e relativi costi
 

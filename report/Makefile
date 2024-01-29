@@ -6,10 +6,10 @@ NAME = report
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "  all        to make all pdf files"
-	@echo "  clean      to delete all generated files"
-	@echo "  clean_pdf  to delete the pdf file"
-	@echo "  clean_all  to delete all generated files and the pdf file"
+	@echo "  all              to make all pdf files"
+	@echo "  clean            to delete all generated files"
+	@echo "  clean_pdf        to delete the pdf file"
+	@echo "  clean_all        to delete all generated files and the pdf file"
 	@echo "  run_interactive  to run latexmk in interactive mode"
 
 all:
