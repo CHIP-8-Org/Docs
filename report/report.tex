@@ -16,15 +16,15 @@
 %         \caption{A C program.}\label{c}
 % \end{Listing}
 
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage[italian]{babel}
 \usepackage[a4paper]{geometry}
 \usepackage[hidelinks]{hyperref}
 \usepackage{eurosym}
 \usepackage{caption, subcaption}
 \usepackage{tikz, circuitikz}
 \usepackage{pgf-umlcd, pgf-umlsd}
+\usepackage[italian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 
 \renewcommand{\umltextcolor}{black}
 \renewcommand{\umldrawcolor}{black}
@@ -98,8 +98,13 @@
 \end{titlepage}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.8em}
-\linespread{1.5}
+% \linespread{1.5}
 
+\tableofcontents
+\listoffigures
+\listoftables
+
+\newpage
 
 \section{Introduzione}
 
@@ -128,9 +133,19 @@ implementazione (o "port"), ovvero un programma che gestisce
 l'audio, il video, l'input da tastiera e interagisce con l'API della
 macchina virtuale.
 
-% TODO: migliorare lo scopo del progetto e accennare alle periferiche
+\section{Stato dell'arte}
 
-\section{Hardware}
+Al giorno d'oggi risulta difficile ottenere un numero esatto di utenti che utilizzano CHIP-8, un buon indicatore puo' essere il topic "chip8" di GitHub che raggruppa quasi un migliaio di repository.
+
+Tra queste la più popolare è Octo, un'implementazione scritta in JavaScript capace di eseguire la versione base di CHIP-8, S-CHIP e XO-CHIP nel browser. La repository è mantenuta da John Earnest, l'inventore di XO-CHIP che nel 2014 ha riportato in vita CHIP-8 modernizzandolo e aggiungendo nuove funzionalità.
+
+Inoltre ogni anno viene organizzata la Octojam, una game jam dove ogni partecipante prova a sviluppare un videogioco per CHIP-8 (o per le sue estensioni) partendo da zero.
+
+Grazie al suo instruction set ridotto e alla sua limitata richiesta di risorse hardware è stato portato su un elevato numero di piattaforme, tra cui il Game Boy Color, calcolatrici grafiche serie HP 48 e Emacs (il famoso editor di testo).
+
+Sebbene CHIP-8 e S-CHIP siano stati tradizionalmente implementati tramite software esistono anche implementazioni hardware. Ne citiamo una in particolare scritta nel linguaggio Verilog per schede FPGA.
+
+\section{Hardware}\label{sec:hardware}
 
 Le componenti principali utilizzate per la relizzazione del progetto sono 5:
 una scheda ST \texttt{STM32F334R8T6} (Fig. \ref{fig:stm32f334}), uno schermo
@@ -147,7 +162,7 @@ scheda perché le ROM dei giochi CHIP-8 e S-CHIP hanno dimensione massima di 4
 limita di SRAM, precisamente 8 \texttt{Kb}.
 
 
-\begin{figure}[h]
+\begin{figure}[h!t]
     \begin{subfigure}[b]{0.45\textwidth}
         \begin{center}
             \includegraphics[scale=0.15]{figures/stm32f334.jpg}
@@ -174,7 +189,7 @@ per poterci interfacciare con l'emulatore. Questo display, da 2.4 pollici,
 é basato sul controller \texttt{ILI9341} e ha una risoluzione di
 320$\times$240 \texttt{px}.
 
-\begin{figure}[h]
+\begin{figure}[h!t]
     \begin{subfigure}[b]{0.45\textwidth}
         \begin{center}
             \includegraphics[scale=0.30]{figures/ili9341.png}
@@ -203,7 +218,7 @@ e per un totale di 2 \texttt{Tb} di dati.
 Per interagire con l'emulatore abbamo utilizzato una tastiera matriciale 4$\times$4
 corrispondente alla tastiera esadecimale originale del CHIP-8 (Fig. \ref{fig:4x4_keypad}).
 
-\begin{figure}[h]
+\begin{figure}[h!t]
     \begin{subfigure}[b]{0.45\textwidth}
         \begin{center}
             \includegraphics[scale=0.090]{figures/4x4_keypad.jpeg}
@@ -243,7 +258,7 @@ due batterie \texttt{AA}.
     \item \textcolor{red}{Rosso}: Alimentazione
 \end{itemize}
 
-\begin{figure}[h]
+\begin{figure}[h!t]
     \begin{center}
         \includegraphics[scale=0.50]{figures/STM32_CHIP8.pdf}
     \end{center}
@@ -253,73 +268,49 @@ due batterie \texttt{AA}.
     \label{fig:schematic}
 \end{figure}
 
-\subsubsection{Descrizione dei componenti}
+\subsubsection{Descrizione del collegamento dei componenti}
 
 In Figura \ref{fig:schematic} é possibile vedere lo schema di collegamento
-delle componenti utilizzate per la realizzazione del progetto. Per realizzare
-lo schema é stato utilizzato il software \texttt{KiCad}.
-E' importante notare, che lo schermo \texttt{ILI9341} e l'integrato lettore
-di schede microSD, utilizza lo pinout standard degli Shields di Arduino,
-ovvero un'interfaccia hardware che permette di collegare una scheda Arduino
-ad un modulo esterno. Quindi, é stato collegato al nostro microcontrollore
-STM32 grazie al fatto che entrambi utilizzano lo stesso pinout.
+delle componenti utilizzate per la realizzazione del progetto. Per realizzare lo schema é stato utilizzato il software \texttt{KiCad}. E' importante notare, che lo schermo \texttt{ILI9341} e l'integrato lettore di schede microSD, utilizza lo pinout standard degli Shields di Arduino, ovvero un'interfaccia hardware che permette di collegare una scheda Arduino ad un modulo esterno. Quindi, é stato collegato al nostro microcontrollore STM32 utilizzando lo stesso pinout.
 
-Il tastierino matriciale 4$\times$4 é stato collegato al microcontrollore
-tramite un'interfaccia GPIO, in particolare i 4 pin relativi alle righe
-(\texttt{R1}, \texttt{R2}, \texttt{R3}, \texttt{R4}) sono stati impostati
-in modalitá \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge).
-Quando si configura un pin GPIO come sorgente di interrupt su un fronte di
-salita, significa che l'interrupt verrà generato quando il livello logico del
-pin passa da basso (0) a alto (1). Questo è utile, ad esempio, quando si
-desidera intercettare un cambiamento di stato su un pulsante quando viene premuto.
-Invece, i 4 pin relativi alle colonne (\texttt{C1}, \texttt{C2}, \texttt{C3},
-\texttt{C4}) sono stati impostati in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP}
-(push-pull output).
+Il tastierino matriciale 4$\times$4 é stato collegato al microcontrollore tramite 8 pin GPIO. In particolare i 4 pin relativi alle righe (\texttt{R1}, \texttt{R2}, \texttt{R3}, \texttt{R4}) sono stati impostati in modalitá \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge). Quando si configura un pin GPIO come sorgente di interrupt su un fronte di salita, significa che l'interrupt verrà generato quando il livello logico del pin passa da basso (0) a alto (1). Questo è utile, ad esempio, quando si desidera intercettare un cambiamento di stato su un pulsante quando viene premuto. Invece, i 4 pin relativi alle colonne (\texttt{C1}, \texttt{C2}, \texttt{C3}, \texttt{C4}) sono stati impostati in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per permettere l'invio dell'interrupt alla pressione di un tasto, dato che chiudendo il circuito permettiamo alla corrente proveniente dal pin GPIO di fluire verso i pin di interrupt. Successivamente, viene identificato il tasto premuto TODO.
 
-\subsection{Materiali e costi} % ALT: Componenti e costi / Componenti utilizzati e relativi costi
+L'ultimo componente é il beeper, che é stato collegato al microcontrollore tramite un pin GPIO e GND. Il pin GPIO é stato impostato in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per permettere l'invio di un segnale al beeper.
 
-% \begin{center}
-    \begin{table}[h] % [ht]
-        \centering
-        \begin{tabular}{|llll|l|}
-            \hline
-            \multicolumn{1}{|l|}{\textbf{Descrizione}}          & \multicolumn{1}{l|}{\textbf{Modello}}       & \multicolumn{1}{l|}{\textbf{Costo unitario}} & \textbf{Unità} & \textbf{Costo} \\ \hline
-            \multicolumn{1}{|l|}{Microcontrollore}       & \multicolumn{1}{l|}{STM32 F334R8T6}         & \multicolumn{1}{l|}{14.99}                   & 1               & 14.99          \\ \hline
-            \multicolumn{1}{|l|}{Schermo}                & \multicolumn{1}{l|}{ILI9341 2.4"}           & \multicolumn{1}{l|}{6.50}                    & 1               & 6.50           \\ \hline
-            \multicolumn{1}{|l|}{Tastierino}          & \multicolumn{1}{l|}{Matrix keypad 4$\times$4} & \multicolumn{1}{l|}{3.99}                    & 1               & 3.99           \\ \hline
-            \multicolumn{1}{|l|}{Beeper}                 & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{0.99}                    & 1               & 0.99           \\ \hline
-            \multicolumn{1}{|l|}{Breadboard e cablaggio} & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{4.99}                    & 1               & 4.99           \\ \hline
-            \multicolumn{4}{|r|}{\textbf{Totale}}                                                      & 31.50\euro    \\ \hline
-        \end{tabular}
-        \caption{
-            Materiali utilizzati per la costruzione del progetto. I costi indicati provengono da negozi online come Amazon e eBay.
-        }
-    \end{table}
-% \end{center}
+
+\subsection{Componenti utilizzati e relativi costi}
+
+\begin{table}[h!t] % [ht]
+    \centering
+    \begin{tabular}{|llll|l|}
+        \hline
+        \multicolumn{1}{|l|}{\textbf{Descrizione}}          & \multicolumn{1}{l|}{\textbf{Modello}}       & \multicolumn{1}{l|}{\textbf{Costo unitario}} & \textbf{Unità} & \textbf{Costo} \\ \hline
+        \multicolumn{1}{|l|}{Microcontrollore}       & \multicolumn{1}{l|}{STM32 F334R8T6}         & \multicolumn{1}{l|}{14.99}                   & 1               & 14.99          \\ \hline
+        \multicolumn{1}{|l|}{Schermo}                & \multicolumn{1}{l|}{ILI9341 2.4"}           & \multicolumn{1}{l|}{6.50}                    & 1               & 6.50           \\ \hline
+        \multicolumn{1}{|l|}{Tastierino}          & \multicolumn{1}{l|}{Matrix keypad 4$\times$4} & \multicolumn{1}{l|}{3.99}                    & 1               & 3.99           \\ \hline
+        \multicolumn{1}{|l|}{Beeper}                 & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{0.99}                    & 1               & 0.99           \\ \hline
+        \multicolumn{1}{|l|}{Breadboard e cablaggio} & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{4.99}                    & 1               & 4.99           \\ \hline
+        \multicolumn{4}{|r|}{\textbf{Totale}}                                                      & 31.50\euro    \\ \hline
+    \end{tabular}
+    \caption{
+        Materiali utilizzati per la costruzione del progetto.
+    }
+    \label{tab:components}
+\end{table}
+
+In Tabella \ref{tab:components} é possibile vedere i componenti utilizzati per la realizzazione del progetto. I costi indicati provengono da negozi online come Amazon e eBay.
 
 \section{Software}
 
-Il nostro software si divide in due componenti principali:
-l'interprete CHIP-8 e l'infrastruttura necessaria per "portarlo"
-su un microcontrollore STM32, ovvero l'interfaccia con lo schermo
-e i gestori per la scheda microSD, per il keypad e per il beeper.
+Il nostro software si divide in due componenti principali: l'interprete CHIP-8 e l'infrastruttura necessaria per "portarlo" sul microcontrollore STM32, ovvero l'interfaccia con lo schermo e i gestori per la scheda microSD, per il keypad e per il beeper come gia' anticipato nella sezione \ref{sec:hardware}.
 
 \subsection{Interprete CHIP-8}
 
-Abbiamo deciso di scrivere l'interprete da zero e per farlo è
-stato necessario consultare le specifiche (de facto standard)
-che definiscono il comportamento di un interprete
-CHIP-8 \cite{cowgod:chip8} e S-CHIP \cite{cowgod:schip}.
+Abbiamo deciso di scrivere l'interprete da zero e per farlo è stato necessario consultare le specifiche (de facto standard) che definiscono il comportamento di un interprete CHIP-8 \cite{cowgod:chip8} e S-CHIP \cite{cowgod:schip}.
 
+L'interprete ha un'architettura basata su registri e possiede 4 KB di memoria, 16 registri general purpose, un registro per gli indirizzi di memoria, un registro per il delay timer, un registro per il sound timer, uno stack per gestire le chiamate a subroutine, uno stack pointer e un program counter, come si puo` vedere nel listato \ref{chip8_struct}.
 
-L'interprete ha un'architettura basata su registri e possiede 4 KB
-di memoria, 16 registri general purpose, un registro per gli
-indirizzi di memoria, un registro per il delay timer,
-un registro per il sound timer, uno stack per gestire le
-chiamate a subroutine, uno stack pointer e un program counter, come si puo`
-vedere nel listato \ref{chip8_struct}.
-
-\begin{Listing} % [ht]
+\begin{Listing}[h!t] % [ht]
     \centering
     \showc*{chip8_struct.c} %[.5\textwidth]
     \caption{Struttura dell'emulatore Chip8}
@@ -350,7 +341,7 @@ le funzioni \texttt{memset} e \texttt{memcpy}
 alternativo per implementare le asserzioni e includere una funzione ad hoc per
 la generazione di numeri casuali.
 
-\begin{Listing} % [ht]
+\begin{Listing}[h!t]
 \centering
 \mbox{
   \showc[.45\textwidth]{libgcc_memset.c}
@@ -496,6 +487,8 @@ S-CHIP 1.1, in questo modo è in grado di eseguire la stragrande
 maggioranza dei videogiochi reperibili in rete.
 
 \subsection{Porting su STM32}
+
+Successivamente, viene capito quale tasto é stato premuto, leggendo il valore dei pin di riga e di colonna. Per fare ció, i pin di riga sono stati impostati in modalitá \texttt{GPIO\_MODE\_INPUT} (input floating) e i pin di colonna in modalitá \texttt{GPIO\_MODE\_INPUT} (input pull-up). Questo significa che i pin di colonna sono collegati a VCC tramite una resistenza di pull-up, mentre i pin di riga sono collegati a GND tramite un pulsante. Quando il pulsante viene premuto, il pin di riga viene collegato a GND e il pin di colonna viene collegato a VCC, quindi il valore del pin di riga diventa 0 e il valore del pin di colonna diventa 1. In questo modo, é possibile capire quale tasto é stato premuto.
 
 \subsubsection{Interfaccia con lo schermo}
 

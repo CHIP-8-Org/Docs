@@ -21,7 +21,7 @@ all:
 clean_all: clean clean_pdf
 
 clean:
-	rm -rf *.aux *.bbl *.blg *.log *.out *.spl *.synctex.gz *.toc *.bcf *.run.xml *.nav *.snm *.vrb *.fdb_latexmk *.fls .$(NAME)-cache
+	rm -rf *.aux *.lof *.lot *.bbl *.blg *.log *.out *.spl *.synctex.gz *.toc *.bcf *.run.xml *.nav *.snm *.vrb *.fdb_latexmk *.fls .$(NAME)-cache
 
 clean_pdf:
 	rm -f $(NAME).pdf
