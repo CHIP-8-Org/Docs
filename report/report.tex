@@ -25,6 +25,7 @@
 \usepackage[italian]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage[normalem]{ulem}
 
 \renewcommand{\umltextcolor}{black}
 \renewcommand{\umldrawcolor}{black}
@@ -162,7 +163,6 @@ scheda perché le ROM dei giochi CHIP-8 e S-CHIP hanno dimensione massima di 4
 4 \texttt{Kb} per poter funzionare non è stato potuto utilizzare la scheda
 \texttt{STM32L053R8T6} fornitaci durante il corso a causa della sua quantità
 limita di SRAM, precisamente 8 \texttt{Kb}.
-
 
 \begin{figure}[h!t]
     \begin{subfigure}[b]{0.45\textwidth}
@@ -353,25 +353,13 @@ TODO SPIEGARE IL CODICE
 \label{assert_rand}
 \end{Listing}
 
-Infine per testare più comodamente l'interprete abbiamo sviluppato
-un semplice emulatore su desktop utilizzando SDL2
-\cite{libsdl:about}, una libreria scritta in C che consente di
-gestire audio, video e input da tastiera.
-In seguito l'interprete è stato sottoposto ad un'apposita
-test suite \cite{github:chip8-test-suite} che mira a verificare
-il comportamento corretto di ciascun opcode.
+Infine per testare più comodamente l'interprete abbiamo sviluppato un semplice emulatore su desktop utilizzando SDL2 \cite{libsdl:about}, una libreria scritta in C che consente di gestire audio, video e input da tastiera. In seguito l'interprete è stato sottoposto ad un'apposita test suite \cite{github:chip8-test-suite} che mira a verificare il comportamento corretto di ciascun opcode.
 
 \subsubsection{Gestione del timing}
 
-Uno dei problemi principali durante lo sviluppo di un emulatore è
-la gestione del timing, in particolare è necessario limitare la
-"velocità" dell'emulatore bloccando temporaneamente la sua
-esecuzione.
+Uno dei problemi principali durante lo sviluppo di un emulatore è la gestione del timing, in particolare è necessario limitare la "velocità" dell'emulatore bloccando temporaneamente la sua esecuzione.
 
-Inoltre abbiamo dovuto disaccoppiare la frequenza dell'interprete
-(regolabile dal giocatore) dalla frequenza del delay timer e del
-sound timer (costante a 60 Hz). Dove con frequenza dell'interprete
-ci riferiamo al numero di istruzioni che esegue ogni frame.
+Inoltre abbiamo dovuto disaccoppiare la frequenza dell'interprete (regolabile dal giocatore) dalla frequenza del delay timer e del sound timer (costante a 60 Hz). Dove con frequenza dell'interprete ci riferiamo al numero di istruzioni che esegue ogni frame.
 
 % Durante lo sviluppo abbiamo testato due soluzioni diverse.
 
@@ -385,17 +373,18 @@ Sono state considerate anche eventuali problematiche che sarebbero potute sorger
 
 \subsubsection{Ottimizzazioni}
 
-\begin{figure}
-    \begin{center}
-        \includegraphics[scale=0.50]{figures/screenopt.pdf}
-    \end{center}
-    \caption{Esempio della mappatura di un pixel.}
-    \label{fig:screenopt}
-\end{figure}
 
 È stato necessario introdurre delle ottimizzazioni all'interno dell'interprete per poterlo far girare su un microcontrollore.
 
 L'ottimizzazione principale è legata alla rappresentazione dello schermo in memoria. Ad alto livello lo schermo può essere visto come una matrice di 128x64 pixel monocromi. Una rappresentazione simile occuperebbe 8192 byte, dato che ciascun pixel verrebbe rappresentato da un byte.
+
+\begin{figure}[h!t]
+    \begin{center}
+        \includegraphics[scale=0.3]{figures/screenopt.pdf}
+    \end{center}
+    \caption{Esempio della mappatura di un pixel.}
+    \label{fig:screenopt}
+\end{figure}
 
 Purtroppo il nostro microcontrollore ha a disposizione solamente 16 KB di SRAM, di conseguenza una soluzione simile non è praticabile.
 
@@ -411,14 +400,6 @@ Questa decisione ha aggiunto però un livello di indirezione dato che una coordi
 Un'ulteriore ottimizzazione viene resa disponibile attraverso l'API dell'interprete sotto forma di una funzione che consente al chiamante di controllare se l'array che rappresenta lo schermo è stato modificato nell'ultimo ciclo di esecuzione. Avendo notato che il numero di opcode che modificano lo schermo è molto limitato, precisamente sono solo 7 su 45, questa funzione consente di ridurre di 6.42 volte il numero di volte in cui
 lo schermo viene aggiornato.
 
-\subsubsection{SD}
-
-Un'ulteriore ottimizzazione é stata di non abilitare il
-Long File Names (LFN) sul filesystem FAT32 della scheda microSD,
-quindi tutti i file devono avere un nome di al massimo 13 byte
-(caratteri ASCII).
-In questo modo abbiamo risparmiato in termini complessitá di computazione,
-memoria flash e SRAM.
 
 \subsubsection{Comportamenti ambigui}
 
@@ -443,13 +424,40 @@ E' utile ricordare che l'emulatore che abbiamo sviluppato é stato progettato pe
 
 Quindi, il processo di adattamento di questo emulatore per il microcontrollore è stato relativamente semplice e non ha richiesto modifiche significative. Tuttavia, in quanto l'emulazione avvieve su una architettura con potenza di calcolo limitata rispetto a quella di un comune calcolatore, le prestazioni e la fluiditá dell'emulatore sono inferiori rispetto a quelle che avevamo usando SDL2.
 
+
+\subsubsection{Architettura software}
+
+In Figura \ref{fig:class_diagram} é possibile vedere il ``class'' diagram riferito al porting dell'emulatore su STM32. L'architettura é composta da 5 componenti principali: \texttt{Chip8}, \texttt{Screen}, \texttt{SD}, \texttt{Keypad} e \texttt{Beeper} poi utilizzati in figura \ref{fig:sequence_diagram} per mostrare come questi interagiscono tra di loro.
+
+Il \texttt{menu}, a differenza dello studio di fattibilita', e' stato rimosso dalle figure dato che tutte le operazioni che lo coinvolgono sono state spostate all'interno del \texttt{main}.
+
+\begin{figure}[h!t]
+    \begin{center}
+        \begin{tikzpicture}[scale=0.6, transform shape]
+            \input{figures/class_diagram.tex}
+        \end{tikzpicture}
+    \end{center}
+    \caption{
+        Class diagram dell'architettura software.
+    }
+    \label{fig:class_diagram}
+\end{figure}
+
+Il flusso di esecuzione dell'emulatore é mostrato in Figura \ref{fig:sequence_diagram}, come si puo' notare e' diviso in due parti. In particolare, la prima inizia con la lettura dei file presenti sulla scheda microSD, successivamente il giocatore seleziona il gioco da eseguire e altre informazioni come la velocitá di esecuzione e la modalitá di esecuzione. Successivamente, l'emulatore inizia l'esecuzione del gioco selezionato. Mentra la seconda parte mostra il flusso di esecuzione dell'emulatore durante l'esecuzione del gioco.
+
+\begin{figure}[h!t]
+    \begin{center}
+        \input{figures/sequence_diagram.tex}
+    \end{center}
+    \caption{
+        Sequence diagram dell'architettura software.
+    }
+    \label{fig:sequence_diagram}
+\end{figure}
+
 \subsubsection{Interfaccia con la scheda microSD}
 
 Inizialmente, la scheda é stata formattata in FAT32 e sono stati caricati i file dei giochi. Successivamente, la scheda é stata inserita nello slot della scheda microSD integrato nello schermo.
-
-La scheda microSD é stata gestita tramite la libreria \texttt{FatFs} \cite{elm-chan:fatfs}, una libreria open source che consente di interfacciarsi con filesystem FAT12, FAT16 e FAT32. Questa libreria é stata sviluppata da ChaN, un \textit{mediocre\footnote{\url{http://elm-chan.org/profile_e.html}} embedded system engineer} giapponese che ha sviluppato anche la libreria \texttt{Petit FatFs} per microcontrollore con risorse limitate.
-
-A livello software abbiamo letto tutti i file presenti sulla scheda microSD e li abbiamo memorizzati in un vettore. Questo perché avere la possibilitá di selezione e successivamente l'aperura del file selezionato.
 
 \begin{Listing}[h!t] % [ht]
     \centering
@@ -459,16 +467,38 @@ A livello software abbiamo letto tutti i file presenti sulla scheda microSD e li
     \label{load_game}
 \end{Listing}
 
-Nel listato \ref{load_game} é possibile vedere il codice che consente di caricare un gioco dalla scheda microSD. E' importante che a riga 12 il file viene spostato nella virtual machine, precisamente viene settato il campo \texttt{RAM} della struct \texttt{Chip8} parendo da \textt{PC\_OFFSET} che di default é settato a \texttt{0x200} come mostrato nel listato \ref{chip8_struct}. Successivamente, deallocando lo spazio utilizzato temporaneamente per memorizzare il file riusciamo a manterenere
+La scheda microSD é stata gestita tramite la libreria \texttt{FatFs} \cite{elm-chan:fatfs}, una libreria open source che consente di interfacciarsi con filesystem FAT12, FAT16 e FAT32. Questa libreria é stata sviluppata da ChaN, un \textit{mediocre\footnote{\url{http://elm-chan.org/profile_e.html}} embedded system engineer} giapponese che ha sviluppato anche la libreria \texttt{Petit FatFs} per microcontrollore con risorse limitate.
+
+
+A livello software abbiamo letto tutti i file presenti sulla scheda microSD e li abbiamo memorizzati in un vettore. Questo per avere la possibilitá di selezione e successivamente l'aperura del file selezionato.
+
+
+Nel listato \ref{load_game} é possibile vedere il codice che consente di caricare un gioco dalla scheda microSD. E' importante notare che a riga 12 il file viene spostato nella virtual machine, precisamente viene settato il campo \texttt{RAM} della struct \texttt{Chip8} parendo da \texttt{PC\_OFFSET} che di default é settato a \texttt{0x200} come mostrato nel listato \ref{chip8_struct}. Successivamente, deallocando lo spazio utilizzato temporaneamente per memorizzare il file riusciamo a manterenere
 il livello di memoria utilizzata pari a quella della struttura dell'emulatore, vale a dire costante.
+
+Una piccola ottimizzazione, ma non da sottovalutare, é stata quella di non abilitare il Long File Names (LFN) sul filesystem FAT32 della scheda microSD. Questo implica il fatto che tutti i file devono avere un nome di al massimo 13 byte (caratteri ASCII). Cosi' facendo abbiamo risparmiato in termini complessitá di computazione, memoria flash e SRAM.
+
+\subsubsection{Menù di selezione}
+
+La selezione del gioco avviene tramite un menù di selezione. Il menu e' composto da una lista di giochi presenti sulla scheda microSD suddivisi in varie pagine e da una sezione per la selezione selezione per la velocitá di esecuzione e la modalitá di esecuzione.
+
+Si puo' notare nel listato \ref{menu} che la selezione del gioco avviene tramite il tastierino, in particolare i tasti \texttt{7} e \texttt{15} permettono di navigare tra le pagine. Il tasto \texttt{0} permette di selezionare la modalitá di esecuzione ciclando tra le 3 modalitá disponibili: \texttt{CHIP8}, \texttt{SCHIP1.0} e \texttt{SCHIP1.1}; invece, il tasto \texttt{8} permette di selezionare la velocitá di esecuzione ciclando tra le 4 preimpostate \texttt{600}, \texttt{1200}, \texttt{1800} e \texttt{2400}. Gli altri tasti sono riservati per avviare il gioco indicato.
+
+\begin{Listing}[h!t] % [ht]
+    \centering
+    \setminted[c]{escapeinside=@@}
+    \showc*{menu.c}
+    \caption{Menù di selezione.}
+    \label{menu}
+\end{Listing}
+
+Per ovviare al fatto che cambiando schermata potrebbero rimanere degli artefatti grafici, abbiamo deciso di pulire lo schermo ad ogni cambio di schermata. Questo é stato possibile grazie alla funzione \texttt{FillScreen}, la quale utilzza metodi della HAL per pulire lo schermo producendo anche un effetto di transizione tra una scheda e l'altra.
 
 \subsubsection{Interfaccia con lo schermo}
 
 Ottimizzazioni, pass to BareMetal implementation
 
-\subsubsection{Menù di selezione}
 
-\subsection{Architettura del software}
 
 % Successivamente, viene capito quale tasto é stato premuto, leggendo il valore dei pin di riga e di colonna. Per fare ció, i pin di riga sono stati impostati in modalitá \texttt{GPIO\_MODE\_INPUT} (input floating) e i pin di colonna in modalitá \texttt{GPIO\_MODE\_INPUT} (input pull-up). Questo significa che i pin di colonna sono collegati a VCC tramite una resistenza di pull-up, mentre i pin di riga sono collegati a GND tramite un pulsante. Quando il pulsante viene premuto, il pin di riga viene collegato a GND e il pin di colonna viene collegato a VCC, quindi il valore del pin di riga diventa 0 e il valore del pin di colonna diventa 1. In questo modo, é possibile capire quale tasto é stato premuto.
 

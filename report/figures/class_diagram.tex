@@ -1,0 +1,63 @@
+\renewcommand{\umltextcolor}{black}
+\renewcommand{\umldrawcolor}{black}
+\renewcommand{\umlfillcolor}{white}
+
+  \begin{class}[text width=2cm]{Main}{6,0}
+    \operation{+ main()}
+  \end{class}
+
+  \begin{class}[text width=3cm]{Keypad}{0,-2}
+      \operation{+ interrupt()}
+      \operation{+ \sout{polling()}}
+  \end{class}
+
+  \begin{class}[text width=1.7cm]{Chip8}{3,-3}
+    \operation{+ init()}
+    \operation{+ cylce()}
+    \operation{+ ended()}
+  \end{class}
+
+
+  \begin{class}[text width=3.5cm]{ILI9341}{6, -4}
+    \operation{+ init(\texttt{Pin[13]})}
+    \operation{+ drawMenu(\texttt{char*[]})}
+    \operation{+ fillScreen(\texttt{uint16\_t})}
+    \operation{+ drawGame(\texttt{char[]})}
+  \end{class}
+
+  \begin{class}[text width=1.7cm]{Beeper}{9,-3}
+      \operation{+ high()}
+      \operation{+ low()}
+  \end{class}
+
+  \begin{class}[text width=3cm]{SD}{12, -2}
+    \operation{+ mount()}
+    \operation{+ open()}
+    \operation{+ read()}
+    \operation{+ readFile(\texttt{char[]})}
+    \operation{+ close()}
+  \end{class}
+
+  % \begin{class}[text width=2.4cm]{Menu}{10,0}
+  %     \operation{+ loadGame()}
+  % \end{class}
+
+    % \draw [umlcd style dashed line , ->] (Menu) -- node [ above , sloped , black ]{} (Keypad) ;
+    % \draw [umlcd style dashed line , ->] (Menu) -- node [ above , sloped , black ]{} (SD) ;
+    % \draw [umlcd style dashed line , fill=white, ->] (Menu) -- node [ below  , black ]{} (ILI9341) ;
+
+    % \draw [umlcd style dashed line , ->] (Main) -- node [ above , sloped , black ]{} (Menu) ;
+    \draw [umlcd style dashed line , ->] (Main) -- node [ above , sloped , black ]{} (Chip8) ;
+    \draw [umlcd style dashed line , ->] (Main) -- node [ above , sloped , black ]{} (Keypad) ;
+    \draw [umlcd style dashed line , ->] (Main) -- node [ above , sloped , black ]{} (Beeper) ;
+    \draw [umlcd style dashed line , fill=white, ->] (Main) -- node [ below , sloped , black ]{} (SD) ;
+    \draw [umlcd style dashed line , fill=white, ->] (Main) -- node [ below , sloped , black ]{} (ILI9341) ;
+
+    \begin{scope}[xshift=0cm, yshift=0cm] % Adjust the positioning of the legend
+    % Legend title
+    \node[font=\bfseries] at (0, 0) {Legend};
+    % Legend items
+    \draw [umlcd style dashed line , fill=white, ->] (0, -0.5) -- (1, -0.5) node[right,  black] {Uses};
+    \end{scope}
+
+  % \draw [ umlcd style , ->] (Main) -- node [ above , sloped , black ]{$ < <$ import $ > >$} (Student) ;

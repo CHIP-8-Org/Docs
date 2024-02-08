@@ -1,0 +1,36 @@
+\resizebox{0.6\textwidth}{!}{%
+        \begin{sequencediagram}
+        \newthread{main}{:Main}
+        % \newinst[0.5]{menu}{:Menu}
+        \newinst[0.5]{vm}{:Chip8}
+        \newinst[0.5]{lcd}{:ILI9341}
+        \newinst[0.5]{kp}{:Keypad}
+        \newinst[0.5]{beep}{:Beeper}
+        \newinst[0.5]{sd}{:SD}
+
+        \begin{call}{main}{mount(); open(); read();}{sd}{}
+        \end{call}
+        \begin{sdblock}{Game Selection Loop (Menu)}{}
+            \begin{call}{main}{interrupt()}{kp}{}
+            \end{call}
+            \begin{call}{main}{drawMenu(\texttt{char*[]})}{lcd}{}
+            \end{call}
+        \end{sdblock}
+        \begin{call}{main}{readFile(\texttt{char[]})}{sd}{}
+        \end{call}
+
+        \begin{call}{main}{init()}{vm}{}
+        \end{call}
+
+        \begin{sdblock}{Main Loop}{}
+            \begin{call}{main}{interrupt()}{kp}{}
+            \end{call}
+            \begin{call}{main}{cycle()}{vm}{}
+            \end{call}
+            \begin{call}{main}{high() / low()}{beep}{}
+            \end{call}
+            \begin{call}{main}{drawGame(\texttt{char[]})}{lcd}{}
+            \end{call}
+        \end{sdblock}
+        \end{sequencediagram}
+    }
