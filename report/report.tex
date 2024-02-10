@@ -270,12 +270,12 @@ due batterie \texttt{AA}.
     \label{fig:schematic}
 \end{figure}
 
-\subsubsection{Descrizione del collegamento dei componenti}
+\subsubsection{Descrizione del collegamento dei componenti}\label{subsubsec:collegamenti}
 
 In Figura \ref{fig:schematic} é possibile vedere lo schema di collegamento
 delle componenti utilizzate per la realizzazione del progetto. Per realizzare lo schema é stato utilizzato il software \texttt{KiCad}. E' importante notare, che lo schermo \texttt{ILI9341} e l'integrato lettore di schede microSD, utilizza lo pinout standard degli Shields di Arduino, ovvero un'interfaccia hardware che permette di collegare una scheda Arduino ad un modulo esterno. Quindi, é stato collegato al nostro microcontrollore STM32 utilizzando lo stesso pinout.
 
-Il tastierino matriciale 4$\times$4 é stato collegato al microcontrollore tramite 8 pin GPIO. In particolare i 4 pin relativi alle righe (\texttt{R1}, \texttt{R2}, \texttt{R3}, \texttt{R4}) sono stati impostati in modalitá \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge). Quando si configura un pin GPIO come sorgente di interrupt su un fronte di salita, significa che l'interrupt verrà generato quando il livello logico del pin passa da basso (0) a alto (1). Questo è utile, ad esempio, quando si desidera intercettare un cambiamento di stato su un pulsante quando viene premuto. Invece, i 4 pin relativi alle colonne (\texttt{C1}, \texttt{C2}, \texttt{C3}, \texttt{C4}) sono stati impostati in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per permettere l'invio dell'interrupt alla pressione di un tasto, dato che chiudendo il circuito permettiamo alla corrente proveniente dal pin GPIO di fluire verso i pin di interrupt. Successivamente, viene identificato il tasto premuto TODO.
+Il tastierino matriciale 4$\times$4 é stato collegato al microcontrollore tramite 8 pin GPIO. In particolare i 4 pin relativi alle righe (\texttt{R1}, \texttt{R2}, \texttt{R3}, \texttt{R4}) sono stati impostati in modalitá \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge). Quando si configura un pin GPIO come sorgente di interrupt su un fronte di salita, significa che l'interrupt verrà generato quando il livello logico del pin passa da basso (0) a alto (1). Questo è utile, ad esempio, quando si desidera intercettare un cambiamento di stato su un pulsante quando viene premuto. Invece, i 4 pin relativi alle colonne (\texttt{C1}, \texttt{C2}, \texttt{C3}, \texttt{C4}) sono stati impostati in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per permettere l'invio dell'interrupt alla pressione di un tasto, dato che chiudendo il circuito permettiamo alla corrente proveniente dal pin GPIO di fluire verso i pin di interrupt. Successivamente, viene identificato il tasto premuto come verra' spiegato nella sezione \ref{subsubsec:keypad}.
 
 L'ultimo componente é il beeper, che é stato collegato al microcontrollore tramite un pin GPIO e GND. Il pin GPIO é stato impostato in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per permettere l'invio di un segnale al beeper.
 
@@ -316,7 +316,7 @@ L'interprete ha un'architettura basata su registri e possiede 4 KB di memoria, 1
 
 \begin{Listing}[h!t] % [ht]
     \centering
-    \showc*{chip8_struct.c} %[.5\textwidth]
+    \showc*[.8\textwidth]{chip8_struct.c}
     \caption{Struttura dell'emulatore Chip8}
     \label{chip8_struct}
 \end{Listing}
@@ -463,7 +463,7 @@ Inizialmente, la scheda é stata formattata in FAT32 e sono stati caricati i fil
 \begin{Listing}[h!t] % [ht]
     \centering
     \setminted[c]{escapeinside=@@}
-    \showc*[.6\textwidth]{load_game.c}
+    \showc*[.55\textwidth]{load_game.c}
     \caption{Caricamento di un gioco dalla scheda microSD.}
     \label{load_game}
 \end{Listing}
@@ -479,21 +479,38 @@ il livello di memoria utilizzata pari a quella della struttura dell'emulatore, v
 
 Una piccola ottimizzazione, ma non da sottovalutare, é stata quella di non abilitare il Long File Names (LFN) sul filesystem FAT32 della scheda microSD. Questo implica il fatto che tutti i file devono avere un nome di al massimo 13 byte (caratteri ASCII). Cosi' facendo abbiamo risparmiato in termini complessitá di computazione, memoria flash e SRAM.
 
-\subsubsection{Menù di selezione}
+\subsubsection{Menu di selezione}
 
 La selezione del gioco avviene tramite un menù di selezione. Il menu e' composto da una lista di giochi presenti sulla scheda microSD suddivisi in varie pagine e da una sezione per la selezione selezione per la velocitá di esecuzione e la modalitá di esecuzione.
 
-Si puo' notare nel listato \ref{menu} che la selezione del gioco avviene tramite il tastierino, in particolare i tasti \texttt{7} e \texttt{15} permettono di navigare tra le pagine. Il tasto \texttt{0} permette di selezionare la modalitá di esecuzione ciclando tra le 3 modalitá disponibili: \texttt{CHIP8}, \texttt{SCHIP1.0} e \texttt{SCHIP1.1}; invece, il tasto \texttt{8} permette di selezionare la velocitá di esecuzione ciclando tra le 4 preimpostate \texttt{600}, \texttt{1200}, \texttt{1800} e \texttt{2400}. Gli altri tasti sono riservati per avviare il gioco indicato.
+Si puo' notare nel listato \ref{menu} che la selezione del gioco avviene tramite il tastierino, in particolare i tasti \texttt{7} e \texttt{15} permettono di navigare tra le pagine. Il tasto \texttt{0} permette di selezionare la modalitá di esecuzione ciclando tra le 3 modalitá disponibili: \texttt{CHIP8}, \texttt{SCHIP1.0} e \texttt{SCHIP1.1}; invece, il tasto \texttt{8} permette di selezionare la velocitá di esecuzione ciclando tra le 4 preimpostate \texttt{600}, \texttt{1200}, \texttt{1800} e \texttt{2400}. Gli altri tasti sono riservati per avviare il gioco selezionato.
 
 \begin{Listing}[h!t] % [ht]
     \centering
     \setminted[c]{escapeinside=@@}
-    \showc*{menu.c}
-    \caption{Menù di selezione.}
+    \showc*[.92\textwidth] {menu.c}
+    \caption{Menu di selezione.}
     \label{menu}
 \end{Listing}
 
-Per ovviare al fatto che cambiando schermata potrebbero rimanere degli artefatti grafici, abbiamo deciso di pulire lo schermo ad ogni cambio di schermata. Questo é stato possibile grazie alla funzione \texttt{FillScreen}, la quale utilzza metodi della HAL per pulire lo schermo producendo anche un effetto di transizione tra una scheda e l'altra.
+Per ovviare al fatto che cambiando schermata potrebbero rimanere degli artefatti grafici, abbiamo deciso di pulire lo schermo ad ogni cambio di schermata. Questo é stato possibile grazie alla funzione \texttt{FillScreen}, la quale utilzza metodi dell'\textit{Hardware Abstract Layer} (HAL) per pulire lo schermo producendo anche un effetto di transizione tra una scheda e l'altra.
+
+\subsubsection{Funzionamento del keypad}\label{subsubsec:keypad}
+
+Inizialmente il keypad é stato gestito tramite polling, ovvero il microcontrollore controllava ad ogni aggiornamento dello schermo (60 \texttt{FPS} $\approx$ 16.666 ms) lo stato dei pin di riga e di colonna per capire quale tasto fosse stato premuto. Questo approccio é stato scartato in favore dell'approccio basato su interrupt, in quanto il polling consumava molte risorse del microcontrollore e non garantiva un framerate stabile in quanto in $\sim$16 ms non riusciva a garantire la lettura di tutti i pin ed eseguire le restanti operazioni.
+
+La procedura di gestione degli interrupt su microcontrollori STM32 é standard. Bisogna implementare una funzione che gestisce l'interrupt e bisogna configurare il pin GPIO come sorgente di interrupt. Nel nostra situzione, come accennato in sezione \ref{subsubsec:collegamenti}, i pin di riga sono stati impostati in modalitá \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge) e i pin di colonna in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per permettere l'invio dell'interrupt alla pressione di un tasto.
+
+Successivamente, viene capito quale tasto é stato premuto, leggendo il valore dei pin di riga e di colonna. Per fare ció, i pin di riga sono stati impostati in modalitá \texttt{GPIO\_MODE\_INPUT}. Come si puo' vedere nel listato \ref{keypad} a riga 1, nella routine di interrupt viene abilitato il pin di output della prima colonna e in seguito per ogni riga viene letto il valore del pin di input per conoscere la seconda coordinata del tasto premuto, e in caso sia premuto viene salvato nella struttura dati apposita nella virtual machine. Questa operazione viene ripetuta per ognuna delle quattro colonne.
+Al termine della routine di interrupt (\inlinec{void Interrupt_handle_keypad(uint16_t GPIO_Pin)}), i pin di riga vengono re-impostati in modalitá \texttt{GPIO\_MODE\_IT\_RISING} per permettere l'invio dell'interrupt alla pressione di un nuovo tasto.
+
+\begin{Listing}[h!t] % [ht]
+    \centering
+    \setminted[c]{escapeinside=@@}
+    \showc*[.87\textwidth]{keypad.c}
+    \caption{Gestione dell'interrupt del keypad.}
+    \label{keypad}
+\end{Listing}
 
 \subsubsection{Interfaccia con lo schermo}
 
@@ -501,7 +518,6 @@ Ottimizzazioni, pass to BareMetal implementation
 
 
 
-% Successivamente, viene capito quale tasto é stato premuto, leggendo il valore dei pin di riga e di colonna. Per fare ció, i pin di riga sono stati impostati in modalitá \texttt{GPIO\_MODE\_INPUT} (input floating) e i pin di colonna in modalitá \texttt{GPIO\_MODE\_INPUT} (input pull-up). Questo significa che i pin di colonna sono collegati a VCC tramite una resistenza di pull-up, mentre i pin di riga sono collegati a GND tramite un pulsante. Quando il pulsante viene premuto, il pin di riga viene collegato a GND e il pin di colonna viene collegato a VCC, quindi il valore del pin di riga diventa 0 e il valore del pin di colonna diventa 1. In questo modo, é possibile capire quale tasto é stato premuto.
 
 % TODO: aggiornare il class diagram e il sequence diagram
 
