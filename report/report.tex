@@ -536,13 +536,34 @@ Gli elementi comuni a tutte le funzioni di stampa sono la chiamata della funzion
 
 Tra le necessita' che avevamo dopo questa implementazione, c'era quella di poter stampare un'immagine piu' grande. In questi termini abbiamo implementato una versione migliorata, la quale accetta in input anche un parametro di \textit{scale}.
 
-% Parlare di bare metal
-% mettere codice dei due pin write metal
-% Parlare del font
+Inoltre, e' importante notare che entrambe queste implementazioni utilizzato la HAL, questo generava un overhead nelle richeste rallentando l'applicativo. Abbiamo risolto questa problematica implementato le rispettive due funzioni in \textit{bare metal} le quali sfuttano come base le funzioni \texttt{PIN\_LOW\_METAL} e \texttt{PIN\_HIGH\_METAL} visibili nel listato \ref{bare_metal_pins}.
 
+\begin{Listing}
+\centering
+\mbox{
+  \showc[.45\textwidth]{pin_low_metal.c}
+  \quad
+  \showc[.50\textwidth]{pin_high_metal.c}
+}
+\caption{Implementazioni bare metal di \texttt{pin\_high} e \texttt{pin\_low}}
+\label{bare_metal_pins}
+\end{Listing}
 
+Entrambe queste funzioni impostano il pin GPIO che viene passato come argomento ad uno stato \texttt{LOW} o \texttt{HIGH} rispettivamente.  Eseguiamo questa azione scrivendo nel registro BSRR (come mostrato nel capitolo 9.4.7 in \cite{STM32F334xx}) (Bit Set/Reset Register). Nel caso della funzione \texttt{HIGH}, quando si scrive un 1 in un bit del registro BSRR, il corrispondente pin viene impostato su \textit{high}, mentre se si scrive un 0, il pin viene lasciato invariato. Nel caso di quella \texttt{LOW}, si accede sempre al registro BSRR, ma questa volta si utilizzano i bit superiori (da 16 a 31) per impostare il pin a \textit{low}.
 
-% TODO: aggiornare il class diagram e il sequence diagram
+\subsubsection{Rendering del font}
+
+E' noto che non esiste una funzione come la \texttt{printf} su microcontrollori, e di conseguenza neanche per stampare una stringa sullo schermo \texttt{ili9341} in quanto non vi e' la conoscenza ne di uno \textit{standard output} ne' di un font. Quindi, e' stato necessario trovare un font, e di preciso abbiamo utilizzato un font che rappresentasse ogni carattere in formato matriciale $8 \times 10$ pixel descrivendoli come 10 numeri a 8 bits.
+
+\begin{figure}[h!t]
+    \begin{center}
+        \includegraphics[scale=0.5]{./figures/matrix_font.pdf}
+    \end{center}
+    \caption{Esempio della mappatura di un carattere del font}
+    \label{fig:matrix_font}
+\end{figure}
+
+In Figura \ref{fig:matrix_font} é possibile vedere come viene rappresentata graficamente la matrice che rappresenta un carattere. Lato implementativo ogni riga viene tratotta in un \texttt{uint8\_t} nel quale i bits settati a $1$ sono quelli che sono quelli colorati di nero, per esempio la prima riga e' tradotta in $0b00111000 \rightarrow 0d56$ il quale sara' il primo componente del vettore che rappresenta il carattere $1$.
 
 % \section{Assemblaggio}
 
@@ -565,3 +586,4 @@ Aggiornare solo la sprite che è stata modificata.
 \bibliography{report}
 
 \end{document}
+
