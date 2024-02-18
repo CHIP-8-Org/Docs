@@ -57,47 +57,47 @@
 % \newpage
 
 \begin{titlepage}
-	\begin{center}
-		\includegraphics[height=5cm]{minerva.pdf}
+    \begin{center}
+        \includegraphics[height=5cm]{minerva.pdf}
 
-		\vspace*{1.75cm}
+        \vspace*{1.75cm}
 
-		\LARGE
+        \LARGE
 
-		\textbf{MSc in Computer Science} \\
-		at University of Milan
+        \textbf{MSc in Computer Science} \\
+        at University of Milan
 
-		\vspace*{1cm}
+        \vspace*{1cm}
 
-		\huge
-		CHIP-8 STM32
+        \huge
+        CHIP-8 STM32
 
-		\large Proposta per il Progetto di PROS, \\
-		corso tenuto da \textbf{Danilo Bruschi}
+        \large Proposta per il Progetto di PROS, \\
+        corso tenuto da \textbf{Danilo Bruschi}
 
-		\normalsize
-		\vspace*{4cm}
+        \normalsize
+        \vspace*{4cm}
 
-		\begin{minipage}[t]{0.47\textwidth}
-			{Email: } \vspace{0.3em} \\
-			{\large \href{federico.bruzzone@studenti.unimi.it}{federico.bruzzone@studenti.unimi.it}} \vspace{1em}  \\
-			{\large \href{lorenzo.ferrante1@studenti.unimi.it}{lorenzo.ferrante1@studenti.unimi.it}} \vspace{1em}  \\
-			{\large \href{andrea.longoni3@studenti.unimi.it}{andrea.longoni3@studenti.unimi.it}} \vspace{1em}  \\
-		\end{minipage}
-		\hfill
-		\begin{minipage}[t]{0.47\textwidth}\raggedleft
-			{Creato da:} \hspace{-0.9em} \vspace{0.3em} \\
-			{\large \textbf{Federico Bruzzone}} \\
-			\vspace{1em}
-			{\large \textbf{Lorenzo Ferrante}} \\
-			\vspace{1em}
-			{\large \textbf{Andrea Longoni}}
-		\end{minipage}
+        \begin{minipage}[t]{0.47\textwidth}
+            {Email: } \vspace{0.3em} \\
+            {\large \href{federico.bruzzone@studenti.unimi.it}{federico.bruzzone@studenti.unimi.it}} \vspace{1em}  \\
+            {\large \href{lorenzo.ferrante1@studenti.unimi.it}{lorenzo.ferrante1@studenti.unimi.it}} \vspace{1em}  \\
+            {\large \href{andrea.longoni3@studenti.unimi.it}{andrea.longoni3@studenti.unimi.it}} \vspace{1em}  \\
+        \end{minipage}
+        \hfill
+        \begin{minipage}[t]{0.47\textwidth}\raggedleft
+            {Creato da:} \hspace{-0.9em} \vspace{0.3em} \\
+            {\large \textbf{Federico Bruzzone}} \\
+            \vspace{1em}
+            {\large \textbf{Lorenzo Ferrante}} \\
+            \vspace{1em}
+            {\large \textbf{Andrea Longoni}}
+        \end{minipage}
 
-		\vfill
-		Anno accademico 2022/2023
+        \vfill
+        Anno accademico 2022/2023
 
-	\end{center}
+    \end{center}
 \end{titlepage}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.8em}
@@ -343,14 +343,14 @@ Per rimuovere la dipendenza da libc è stato necessario includere alcune funzion
 TODO SPIEGARE IL CODICE
 
 \begin{Listing}[h!t]
-\centering
-\mbox{
-  \showc[.45\textwidth]{assert.c}
-  \quad
-  \showc[.50\textwidth]{random.c}
-}
-\caption{Implementazioni di \texttt{ASSERT} e \texttt{rand\_byte}.}
-\label{assert_rand}
+    \centering
+    \mbox{
+        \showc[.45\textwidth]{assert.c}
+        \quad
+        \showc[.50\textwidth]{random.c}
+    }
+    \caption{Implementazioni di \texttt{ASSERT} e \texttt{rand\_byte}.}
+    \label{assert_rand}
 \end{Listing}
 
 Infine per testare più comodamente l'interprete abbiamo sviluppato un semplice emulatore su desktop utilizzando SDL2 \cite{libsdl:about}, una libreria scritta in C che consente di gestire audio, video e input da tastiera. In seguito l'interprete è stato sottoposto ad un'apposita test suite \cite{github:chip8-test-suite} che mira a verificare il comportamento corretto di ciascun opcode.
@@ -539,14 +539,14 @@ Tra le necessita' che avevamo dopo questa implementazione, c'era quella di poter
 Inoltre, e' importante notare che entrambe queste implementazioni utilizzato la HAL, questo generava un overhead nelle richeste rallentando l'applicativo. Abbiamo risolto questa problematica implementato le rispettive due funzioni in \textit{bare metal} le quali sfuttano come base le funzioni \texttt{PIN\_LOW\_METAL} e \texttt{PIN\_HIGH\_METAL} visibili nel listato \ref{bare_metal_pins}.
 
 \begin{Listing}
-\centering
-\mbox{
-  \showc[.45\textwidth]{pin_low_metal.c}
-  \quad
-  \showc[.50\textwidth]{pin_high_metal.c}
-}
-\caption{Implementazioni bare metal di \texttt{pin\_high} e \texttt{pin\_low}}
-\label{bare_metal_pins}
+    \centering
+    \mbox{
+        \showc[.45\textwidth]{pin_low_metal.c}
+        \quad
+        \showc[.50\textwidth]{pin_high_metal.c}
+    }
+    \caption{Implementazioni bare metal di \texttt{pin\_high} e \texttt{pin\_low}}
+    \label{bare_metal_pins}
 \end{Listing}
 
 Entrambe queste funzioni impostano il pin GPIO che viene passato come argomento ad uno stato \texttt{LOW} o \texttt{HIGH} rispettivamente.  Eseguiamo questa azione scrivendo nel registro BSRR (come mostrato nel capitolo 9.4.7 in \cite{STM32F334xx}) (Bit Set/Reset Register). Nel caso della funzione \texttt{HIGH}, quando si scrive un 1 in un bit del registro BSRR, il corrispondente pin viene impostato su \textit{high}, mentre se si scrive un 0, il pin viene lasciato invariato. Nel caso di quella \texttt{LOW}, si accede sempre al registro BSRR, ma questa volta si utilizzano i bit superiori (da 16 a 31) per impostare il pin a \textit{low}.
