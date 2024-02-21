@@ -43,8 +43,6 @@
 % \author{Federico Bruzzone, Lorenzo Ferrante, Andrea Longoni \\
 % \footnotesize \texttt{\{federico.bruzzone, lorenzo.ferrante1, andrea.longoni3\}@studenti.unimi.it} \\ }
 
-
-
 \textwidth=450pt
 \oddsidemargin=0pt
 \textheight=665pt
@@ -108,6 +106,19 @@
 \listoftables
 
 \newpage
+
+\begin{center}
+\fbox{
+    \begin{minipage}{0.9\textwidth}
+    \footnotesize\itshape
+    % TODO: Organizzazione
+    We declare that this material, which we now submit for assessment, is entirely our own work and has not been taken from the work of others, save and to the extent that such work has been cited and acknowledged within the text of our work. We understand that plagiarism, collusion, and copying are grave and serious offences in the university and accept the penalties that would be imposed should we engage in plagiarism, collusion or copying. This assignment, or any part of it, has not been previously submitted by us or any other person for assessment on this or any other course of study.
+    \\
+    \\
+    Github repository: \url{https://github.com/FedericoBruzzone/anti-money-laundering/}
+    \end{minipage}
+}
+\end{center}
 
 \section{Introduzione}
 
@@ -500,7 +511,7 @@ Inizialmente il keypad é stato gestito tramite polling, ovvero il microcontroll
 La procedura di gestione degli interrupt su microcontrollori STM32 é standard. Bisogna implementare una funzione che gestisce l'interrupt e bisogna configurare il pin GPIO come sorgente di interrupt. Nel nostra situzione, come accennato in sezione \ref{subsubsec:collegamenti}, i pin di riga sono stati impostati in modalitá \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge) e i pin di colonna in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per permettere l'invio dell'interrupt alla pressione di un tasto.
 
 Successivamente, viene capito quale tasto é stato premuto, leggendo il valore dei pin di riga e di colonna. Per fare ció, i pin di riga sono stati impostati in modalitá \texttt{GPIO\_MODE\_INPUT}. Come si puo' vedere nel listato \ref{keypad} a riga 1, nella routine di interrupt viene abilitato il pin di output della prima colonna e in seguito per ogni riga viene letto il valore del pin di input per conoscere la seconda coordinata del tasto premuto, e in caso sia premuto viene salvato nella struttura dati apposita nella virtual machine. Questa operazione viene ripetuta per ognuna delle quattro colonne.
-Al termine della routine di interrupt (\inlinec{void Interrupt_handle_keypad(uint16_t GPIO_Pin)}), i pin di riga vengono re-impostati in modalitá \texttt{GPIO\_MODE\_IT\_RISING} per permettere l'invio dell'interrupt alla pressione di un nuovo tasto.
+Al termine della routine di interrupt ({\setmintedinline[c]{style=friendly}\inlinec{void Interrupt_handle_keypad(uint16_t GPIO_Pin)}}), i pin di riga vengono re-impostati in modalitá \texttt{GPIO\_MODE\_IT\_RISING} per permettere l'invio dell'interrupt alla pressione di un nuovo tasto.
 
 \begin{Listing}[h!t] % [ht]
     \centering
@@ -516,12 +527,12 @@ Il driver per display a cristalli liquidi \texttt{ILI9341} consente la comunicaz
 
 L'interfaccia parallela è un metodo di comunicazione che coinvolge l'invio simultaneo di più bit di dati attraverso una serie di linee di comunicazione parallele. Nel contesto del display LCD ILI9341, l'interfaccia parallela ad 8 bit coinvolge l'uso di otto linee di dati per trasmettere informazioni al display. Oltre alle linee di dati, ci possono essere anche altre linee di controllo, come quelle per il segnale di sincronizzazione e i segnali di controllo. Quando si utilizza l'interfaccia parallela, i dati vengono inviati al display in gruppi di 8 bit simultaneamente, consentendo un trasferimento più rapido rispetto all'interfaccia SPI, che invia i dati bit per bit in sequenza.
 
-Per l'nizializzazione abbiamo utilizzato la funzione \inlinec{int Init(struct ILI9341_t *ili, struct ILI9341_Pin_t {D7, D6, D5, D4, D3, D2, D1, D0, RST, CS, RS, WR, RD})}, prende in input un puntatore alla struttura dati relativa alla scheda e i pin utilizzati per la comunicazione parallela. Gli ultimi cinque pin elencati nella firma della funzione sono stati inizializzati in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP} grazie alle funzioni della HAL.
+Per l'nizializzazione abbiamo utilizzato la funzione {\setmintedinline[c]{style=friendly}\inlinec{int Init(struct ILI9341_t *ili, struct ILI9341_Pin_t {D7, D6, D5, D4, D3, D2, D1, D0, RST, CS, RS, WR, RD})}}, prende in input un puntatore alla struttura dati relativa alla scheda e i pin utilizzati per la comunicazione parallela. Gli ultimi cinque pin elencati nella firma della funzione sono stati inizializzati in modalitá \texttt{GPIO\_MODE\_OUTPUT\_PP} grazie alle funzioni della HAL.
 
 Quindi, prima di inviare la sequenza di inizializzazione al display, è necessario impostare uno stato iniziale per la scheda. Questo stato prevede che il pin \texttt{LCD\_CS} sia impostato su LOW, mentre i pin \texttt{LCD\_WR} e \texttt{LCD\_RD} devono essere disabilitati. Il pin \texttt{LCD\_RST} è utilizzato per resettare lo stato interno del display quando è attivo, conosciuto anche come \textit{hardware reset}. Per garantire un avvio sicuro, attiviamo e disattiviamo questo pin per resettare la scheda a uno stato noto. Successivamente, il pin \texttt{LCD\_RST} rimarrà disabilitato per tutta l'esecuzione.
 
 Una fase molto importante e' riservata all'invio della \textit{init sequence}.
-Di base lo schermo e' in modalitá \textit{sleep}, quindi dobbiamo mandare una sequenza di comandi per risvegliarlo. Questa sequenza di comandi é specifica per il display \texttt{ILI9341} ed sono spiegati dettagliatamente nel datasheet \cite{ili9341}. Questi comandi sono stati inviati al display tramite la funzione \inlinec{void WriteCommand(struct ILI9341_t *ili, uint8_t cmd)}. Oltre al comando di \textit{wake up}, e' stato eseguito il \texit{reset software}, l'impostazione del \textit{power control} e la quantita' di bit per il colore del pixel (16 bit). Tralasciando qualche comando, in fine abbiamo iniviato il comando di \textit{display on}.
+Di base lo schermo e' in modalitá \textit{sleep}, quindi dobbiamo mandare una sequenza di comandi per risvegliarlo. Questa sequenza di comandi é specifica per il display \texttt{ILI9341} ed sono spiegati dettagliatamente nel datasheet \cite{ili9341}. Questi comandi sono stati inviati al display tramite la funzione {\setmintedinline[c]{style=friendly}\inlinec{void WriteCommand(struct ILI9341_t *ili, uint8_t cmd)}}. Oltre al comando di \textit{wake up}, e' stato eseguito il \textit{reset software}, l'impostazione del \textit{power control} e la quantita' di bit per il colore del pixel (16 bit). Tralasciando qualche comando, in fine abbiamo iniviato il comando di \textit{display on}.
 
 \begin{Listing}[h!t] % [ht]
     \centering
@@ -532,7 +543,7 @@ Di base lo schermo e' in modalitá \textit{sleep}, quindi dobbiamo mandare una s
 \end{Listing}
 
 Nel file relativo allo schermo, abbiamo implementato diverse funzioni per gestirlo. In particolare, la funzione nel listato \ref{ili9341_printscreen} e' stata la prima implementazione capace di stampare lo schermo. Successivamente, abbiamo basato le altre implementazioni su quest'ultima aggiungendo delle \textit{features}.
-Gli elementi comuni a tutte le funzioni di stampa sono la chiamata della funzione \inlinec{SetDrawingArea} che definisce i vertici del rettangolo da disegnare e la chiamata della funzione \inlinec{WriteCommand} con argomento \inlinec{CMD_MEMORY_WRITE} per indicare al display che stiamo per inviare dei dati.
+Gli elementi comuni a tutte le funzioni di stampa sono la chiamata della funzione {\setmintedinline[c]{style=friendly}\inlinec{SetDrawingArea}} che definisce i vertici del rettangolo da disegnare e la chiamata della funzione \inlinec{WriteCommand} con argomento {\setmintedinline[c]{style=friendly}\inlinec{CMD_MEMORY_WRITE}} per indicare al display che stiamo per inviare dei dati.
 
 Tra le necessita' che avevamo dopo questa implementazione, c'era quella di poter stampare un'immagine piu' grande. In questi termini abbiamo implementato una versione migliorata, la quale accetta in input anche un parametro di \textit{scale}.
 
@@ -553,7 +564,7 @@ Entrambe queste funzioni impostano il pin GPIO che viene passato come argomento 
 
 \subsubsection{Rendering del font}
 
-E' noto che non esiste una funzione come la \texttt{printf} su microcontrollori, e di conseguenza neanche per stampare una stringa sullo schermo \texttt{ili9341} in quanto non vi e' la conoscenza ne di uno \textit{standard output} ne' di un font. Quindi, e' stato necessario trovare un font, e di preciso abbiamo utilizzato un font che rappresentasse ogni carattere in formato matriciale $8 \times 10$ pixel descrivendoli come 10 numeri a 8 bits.
+E' noto che non esiste una funzione come la \texttt{printf} su microcontrollori, e di conseguenza neanche per stampare una stringa sullo schermo \texttt{ili9341} in quanto non vi e' la conoscenza ne di uno \textit{standard output} ne' di un font. Quindi, e' stato necessario trovare un font, e di preciso abbiamo utilizzato un font che rappresentasse ogni glifo (simbolo o lettera) come bitmap quindi in formato matriciale $8 \times 10$ pixel descrivendoli come 10 numeri a 8 bits.
 
 \begin{figure}[h!t]
     \begin{center}
@@ -563,23 +574,22 @@ E' noto che non esiste una funzione come la \texttt{printf} su microcontrollori,
     \label{fig:matrix_font}
 \end{figure}
 
-In Figura \ref{fig:matrix_font} é possibile vedere come viene rappresentata graficamente la matrice che rappresenta un carattere. Lato implementativo ogni riga viene tratotta in un \texttt{uint8\_t} nel quale i bits settati a $1$ sono quelli che sono quelli colorati di nero, per esempio la prima riga e' tradotta in $0b00111000 \rightarrow 0d56$ il quale sara' il primo componente del vettore che rappresenta il carattere $1$.
+In Figura \ref{fig:matrix_font} \'e possibile vedere come viene rappresentata graficamente la matrice che rappresenta un carattere. Lato implementativo ogni riga viene tratotta in un \texttt{uint8\_t} nel quale i bits settati a $1$ sono quelli che sono quelli colorati di nero, per esempio la prima riga e' tradotta in $0b00111000 \rightarrow 0d56$ il quale sar\'a il primo componente del vettore che rappresenta il carattere $1$. Questa bitmap \'e passata alla funzione {\setmintedinline[c]{style=friendly}\inlinec{void WriteChar(struct ILI9341_t *ili, int X, int Y, int FW, int FH, unsigned char (*font)[FH])}} sottoforma di vettore (\texttt{font}) lungo 10 di \texttt{unsigned char}.
 
-% \section{Assemblaggio}
+Inoltre, abbiamo implementato delle funzioni ausiliarie. In particolare, la funzione {\setmintedinline[c]{style=friendly}\inlinec{void WriteString(struct ILI9341_t *ili, int X, int Y, int FW, int FH, int N_GLYPHS, unsigned char (*font)[N_GLYPHS][FH], char *str)}} che consente di stampare una stringa sullo schermo utilizzando la funzione {\setmintedinline[c]{style=friendly}\inlinec{WriteChar}}. Questa funzione accetta in input la posizione in cui stampare la stringa, la dimensione del font, il numero di glifi presenti nel font e la stringa da stampare.
 
-% TODO release
+Abbiamo sfruttato queste implementazioni per stampare il menu di selezione, il quale é composto da una lista di giochi presenti sulla scheda microSD suddivisi in varie pagine e da una sezione per la selezione selezione per la velocitá di esecuzione e la modalitá di esecuzione. La funzione accetta in input un array di stringhe, un array di modalitá di esecuzione e un array di velocitá di esecuzione, e le restanti informazioni che servono a {\setmintedinline[c]{style=friendly}\inlinec{WriteString}}.
 
-\section{Analisi del consumo energetico} % ALT: Alimentazione e consumi
 
-% TODO
+\section{Assemblaggio}
 
-\section{Considerazioni finali} % ALT: Conclusioni e sviluppi futuri
+\section{Analisi del consumo energetico}
 
-\section{Sviluppi futuri}
+
+\section{Considerazioni finali e sviluppi futuri}
 
 Aggiornare solo la sprite che è stata modificata.
 
-% TODO
 
 \addcontentsline{toc}{section}{Riferimenti bibliografici}
 \bibliographystyle{plain}
