@@ -120,7 +120,7 @@
     \begin{itemize}
         \item Organizzazione: \url{https://github.com/CHIP-8-Org}
         \item Federico Bruzzone: \url{https://github.com/FedericoBruzzone}
-        \item Lorenzo Ferrante\url{https://github.com/0xHaru}
+        \item Lorenzo Ferrante: \url{https://github.com/0xHaru}
         \item Andrea Longoni: \url{https://github.com/Andreal2000}
     \end{itemize}
     \end{minipage}
@@ -309,8 +309,9 @@ L'ultimo componente é il beeper, che é stato collegato al microcontrollore tra
         \multicolumn{1}{|l|}{Schermo}                & \multicolumn{1}{l|}{ILI9341 2.4"}           & \multicolumn{1}{l|}{6.50}                    & 1               & 6.50           \\ \hline
         \multicolumn{1}{|l|}{Tastierino}          & \multicolumn{1}{l|}{Matrix keypad 4$\times$4} & \multicolumn{1}{l|}{3.99}                    & 1               & 3.99           \\ \hline
         \multicolumn{1}{|l|}{Beeper}                 & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{0.99}                    & 1               & 0.99           \\ \hline
-        \multicolumn{1}{|l|}{Scocca e cablaggio} & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{4.99}                    & 1               & 4.99           \\ \hline
-        \multicolumn{4}{|r|}{\textbf{Totale}}                                                      & 31.50\euro    \\ \hline
+        \multicolumn{1}{|l|}{Cablaggio} & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{4.99}                    & 1               & 4.99           \\ \hline
+        \multicolumn{1}{|l|}{Scocca} & \multicolumn{1}{l|}{GW42002}                       & \multicolumn{1}{l|}{9.99}                    & 1               & 9.99           \\ \hline
+        \multicolumn{4}{|r|}{\textbf{Totale}}                                                      & 41.50\euro    \\ \hline
     \end{tabular}
     \caption{
         Materiali utilizzati per la costruzione del progetto.
@@ -594,14 +595,26 @@ Una volta completato il software, come gi\'a anticipato nella proposta di proget
 
 Per la realizzazione, abbiamo utilizato una base di supporto polifunzionale\footnote{\url{https://www.gewiss.com/al/it/prodotti/product.1000002.1000090.GW42002}} di dimensione $200 \times 150 \times 60$ correttamente rifinita per consentire la fuoriuscita del \textit{display} e del \textit{keypad} nella parte superiore e laterlamente sono stati applicati dei fori di dimensione variabile per permettere al grazioso suono del \textit{beeper} di raggiungere le orecchie dell'ascoltatore e avere un interruttore per l'accsione e spegnimento della scheda.
 
-Internamente alla base di supporto, i collegamenti sono rimasti quelli descritti in sezione \ref{subsubsec:collegamenti} visibili in figura \ref{fig:schematic}. Ma abbiamo utilizzato 4 pile AA per alimentare la scheda per evitare di doverla collegare ad una presa di corrente.
-
-% TODO parlare assemblaggio singoli componenti
+Internamente alla base di supporto, i collegamenti sono rimasti quelli descritti in sezione \ref{subsubsec:collegamenti} visibili in figura \ref{fig:schematic}. Ma abbiamo aggiunto delle batterie esterne come alimentazione per la scheda evitando di doverla collegare ad una presa di corrente. Come si pu\'o notare in figura \ref{fig:box1} lo schermo \'e esterno alla scatola per permettere l'incastro con la scheda attraverso i pins dello \textit{shield} in modo da non utilizzare colla o nastri adesivi. Per il keypad abbiamo utilizzato un nastro biadesivo per attaccarlo alla base di supporto, in quanto le lettere del keypad non rispecchiavano le originali del Cosmac Vip\footnote{https://en.wikipedia.org/wiki/COSMAC\_VIP} abbiamo deciso di ricoprire i tasti incorretti con un adesivo indicante la lettera originale.
 
 Il risultato finale dell'assemblaggio punta ad essere a scopo dimostrativo. Se si puntasse ad un prodotto commerciale, sarebbe necessaria una PCB ad-hoc al posto della \textit{development board} di STM32 per ridurre la dimensione del prodotto, eventualmente un \textit{case 3D printed} pi\'u piccolo per aumentarne la portabilit\'a e in caso di miglior feedback tattile un \textit{keypad} di qualit\'a superiore.
 
 \section{Analisi del consumo energetico}
 
+La scheda \texttt{STM32F334R8T6} permette di essere alimentata tramite un cavo USB o una batteria esterna. Per motivi di portabilit\'a, nel nostro caso abbiamo deciso di utilizzare 4 batterie AA da 1.5V per un totale di 6V. Non \'e stato un lavoro particolarmente difficile, in quanto la scheda \texttt{STM32F334R8T6} ha un regolatore di tensione integrato che permette di essere alimentata da 3.3V a 5V, quindi abbiamo collegato le batterie in serie e abbiamo collegato il positivo e il negativo al pin \texttt{VDD} e \texttt{GND} della scheda.
+
+Per avere una stima di quanto tempo il nostro progetto potesse rimanere accesso, abbiamo deciso di misurare il consumo energetico. Per fare ci\'o abbiamo il software fornito da ST Microelectronics chiamato \textit{STM32CubeIDE} il quale permette di misurare il consumo energetico della scheda.
+
+Il nostro progetto consuma all'incirca 80 mAh, quindi con 4 batterie AA da 1.5V, che hanno una capacità di 2500 mAh, il nostro progetto può rimanere acceso per circa 35 ore.
+
+Per calcolare il consumo energetico, abbiamo utilizzato la formula
+\begin{equation*}
+    \begin{aligned}
+        \textmd{time} \ (\texttt{h}) & = \frac{\textmd{capacity} \ (\texttt{mA})}{\textmd{consumption} \ (\texttt{mAh})}\\
+                                     & = \frac{4 * 2500 \ \texttt{mA}}{80 \ \texttt{mAh}}\\
+                                     & = 40 \ \texttt{h}
+    \end{aligned}
+\end{equation*}
 
 \section{Considerazioni finali e sviluppi futuri}
 
