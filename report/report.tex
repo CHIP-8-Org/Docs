@@ -1,6 +1,8 @@
 \documentclass[a4paper]{article}
 
 \usepackage{showcode/showcode}
+\usepackage{multicol}
+\usepackage{blindtext}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{mathtools}
@@ -111,11 +113,16 @@
 \fbox{
     \begin{minipage}{0.9\textwidth}
     \footnotesize\itshape
-    % TODO: Organizzazione
-    We declare that this material, which we now submit for assessment, is entirely our own work and has not been taken from the work of others, save and to the extent that such work has been cited and acknowledged within the text of our work. We understand that plagiarism, collusion, and copying are grave and serious offences in the university and accept the penalties that would be imposed should we engage in plagiarism, collusion or copying. This assignment, or any part of it, has not been previously submitted by us or any other person for assessment on this or any other course of study.
+    Per divulgazione abbiamo deciso di rendere pubblico il nostro progetto. Questo documento è stato scritto con l'intento di essere comprensibile a chiunque abbia una conoscenza di sistemi operativi e sitemi embedded. Inoltre, abbiamo deciso creare un'organizzazione GitHub chiamata \textbf{Chip-8-Org}\footnote{\url{https://github.com/CHIP-8-Org}} per rendere pubblico il codice sorgente della virtual machine\footnote{\url{https://github.com/CHIP-8-Org/Core}}, il porting su STM32 con il codice relativo alle interfaccie hardware\footnote{\url{https://github.com/CHIP-8-Org/CHIP-8-STM32}} e i latex relativi a questa relazione e alla proposta\footnote{\url{https://github.com/CHIP-8-Org/Latex}}. L'obiettivo di questa azione \'e quello di promuovere la conoscenza di CHIP-8 e S-CHIP e di rendere disponibile un progetto open-source per chiunque sia interessato a sviluppare un emulatore per CHIP-8 o S-CHIP.
     \\
     \\
-    Github repository: \url{https://github.com/FedericoBruzzone/anti-money-laundering/}
+    GitHub:
+    \begin{itemize}
+        \item Organizzazione: \url{https://github.com/CHIP-8-Org}
+        \item Federico Bruzzone: \url{https://github.com/FedericoBruzzone}
+        \item Lorenzo Ferrante\url{https://github.com/0xHaru}
+        \item Andrea Longoni: \url{https://github.com/Andreal2000}
+    \end{itemize}
     \end{minipage}
 }
 \end{center}
@@ -434,8 +441,9 @@ Come già anticipato nella sezione \ref{sec:hardware}, l'infrastruttura si compo
 
 E' utile ricordare che l'emulatore che abbiamo sviluppato é stato progettato per essere eseguito su qualunque architettura hardware in per cui é compilabile un file C, quindi non é stato necessario apportare modifiche all'interprete per poterlo eseguire sul microcontrollore STM32.
 
-Quindi, il processo di adattamento di questo emulatore per il microcontrollore è stato relativamente semplice e non ha richiesto modifiche significative. Tuttavia, in quanto l'emulazione avvieve su una architettura con potenza di calcolo limitata rispetto a quella di un comune calcolatore, le prestazioni e la fluiditá dell'emulatore sono inferiori rispetto a quelle che avevamo usando SDL2.
+Quindi, il processo di adattamento di questo emulatore per il microcontrollore è stato relativamente semplice e non ha richiesto modifiche significative. Tuttavia, in quanto l'emulazione avvieve su una architettura con potenza di calcolo limitata rispetto a quella di un comune calcolatore, le prestazioni e la fluiditá dell'emulatore sono inferiori rispetto a quelle che avevamo usando SDL2 \cite{libsdl:about}.
 
+Normalmente, software sviluppati per calcolatori odierni non richiedono di compilare il codice in \textit{release} per notare una sostanziale differenza dalla comune compilazione, per esempio quella in \textit{debug}. Mentre, per quanto concerne il microcontrollore, la compilazione in \textit{release} permette di ottenere un incremento di prestazioni significativo anche se in alcune situazioni \'e stato necessario eseguire in modalit\'a \textit{debug} per poter usufruire delle feature del \textit{debugger}, in particolare \textit{breakpoint} e \textit{watchpoint}.
 
 \subsubsection{Architettura software}
 
@@ -580,8 +588,17 @@ Inoltre, abbiamo implementato delle funzioni ausiliarie. In particolare, la funz
 
 Abbiamo sfruttato queste implementazioni per stampare il menu di selezione, il quale é composto da una lista di giochi presenti sulla scheda microSD suddivisi in varie pagine e da una sezione per la selezione selezione per la velocitá di esecuzione e la modalitá di esecuzione. La funzione accetta in input un array di stringhe, un array di modalitá di esecuzione e un array di velocitá di esecuzione, e le restanti informazioni che servono a {\setmintedinline[c]{style=friendly}\inlinec{WriteString}}.
 
-
 \section{Assemblaggio}
+
+Una volta completato il software, come gi\'a anticipato nella proposta di progetto, abbiamo deciso di assemblare le componenti hardware in un \textit{case} in modo da nascondere i cavi e le componenti scoperte, lasciando accessibili le parti con cui il giocatore deve interagire.
+
+Per la realizzazione, abbiamo utilizato una base di supporto polifunzionale\footnote{\url{https://www.gewiss.com/al/it/prodotti/product.1000002.1000090.GW42002}} di dimensione $200 \times 150 \times 60$ correttamente rifinita per consentire la fuoriuscita del \textit{display} e del \textit{keypad} nella parte superiore e laterlamente sono stati applicati dei fori di dimensione variabile per permettere al grazioso suono del \textit{beeper} di raggiungere le orecchie dell'ascoltatore e avere un interruttore per l'accsione e spegnimento della scheda.
+
+Internamente alla base di supporto, i collegamenti sono rimasti quelli descritti in sezione \ref{subsubsec:collegamenti} visibili in figura \ref{fig:schematic}. Ma abbiamo utilizzato 4 pile AA per alimentare la scheda per evitare di doverla collegare ad una presa di corrente.
+
+% TODO parlare assemblaggio singoli componenti
+
+Il risultato finale dell'assemblaggio punta ad essere a scopo dimostrativo. Se si puntasse ad un prodotto commerciale, sarebbe necessaria una PCB ad-hoc al posto della \textit{development board} di STM32 per ridurre la dimensione del prodotto, eventualmente un \textit{case 3D printed} pi\'u piccolo per aumentarne la portabilit\'a e in caso di miglior feedback tattile un \textit{keypad} di qualit\'a superiore.
 
 \section{Analisi del consumo energetico}
 
@@ -589,7 +606,6 @@ Abbiamo sfruttato queste implementazioni per stampare il menu di selezione, il q
 \section{Considerazioni finali e sviluppi futuri}
 
 Aggiornare solo la sprite che è stata modificata.
-
 
 \addcontentsline{toc}{section}{Riferimenti bibliografici}
 \bibliographystyle{plain}
