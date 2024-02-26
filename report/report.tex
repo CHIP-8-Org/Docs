@@ -310,8 +310,9 @@ L'ultimo componente é il beeper, che é stato collegato al microcontrollore tra
         \multicolumn{1}{|l|}{Tastierino}          & \multicolumn{1}{l|}{Matrix keypad 4$\times$4} & \multicolumn{1}{l|}{3.99}                    & 1               & 3.99           \\ \hline
         \multicolumn{1}{|l|}{Beeper}                 & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{0.99}                    & 1               & 0.99           \\ \hline
         \multicolumn{1}{|l|}{Cablaggio} & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{4.99}                    & 1               & 4.99           \\ \hline
+        \multicolumn{1}{|l|}{Bottone e altri materiali} & \multicolumn{1}{l|}{}       & \multicolumn{1}{l|}{4.99}                    & 1               & 4.99           \\ \hline
         \multicolumn{1}{|l|}{Scocca} & \multicolumn{1}{l|}{GW42002}                       & \multicolumn{1}{l|}{9.99}                    & 1               & 9.99           \\ \hline
-        \multicolumn{4}{|r|}{\textbf{Totale}}                                                      & 41.50\euro    \\ \hline
+        \multicolumn{4}{|r|}{\textbf{Totale}}                                                      & 46.50\euro    \\ \hline
     \end{tabular}
     \caption{
         Materiali utilizzati per la costruzione del progetto.
@@ -391,7 +392,6 @@ Abbiamo fissato il ritardo del game loop a 16.666 ms, un valore sufficientemente
 Sono state considerate anche eventuali problematiche che sarebbero potute sorgere con questo approccio. In particolare non tutte le istruzioni impiegano lo stesso tempo per essere eseguite, ma fortunatamente anche l'istruzione più lenta richiede una quantità trascurabile di tempo. Ciò significa che possiamo comportarci come se tutte le istruzioni richiedessero il medesimo tempo.
 
 \subsubsection{Ottimizzazioni}
-
 
 È stato necessario introdurre delle ottimizzazioni all'interno dell'interprete per poterlo far girare su un microcontrollore.
 
@@ -499,7 +499,7 @@ Nel listato \ref{load_game} é possibile vedere il codice che consente di carica
 
 \subsubsection{Menu di selezione}
 
-La selezione del gioco avviene tramite un menù di selezione. Il menu e' composto da una lista di giochi presenti sulla scheda microSD suddivisi in varie pagine e da una sezione per la selezione selezione per la velocitá di esecuzione e la modalitá di esecuzione.
+La selezione del gioco avviene tramite un menù di selezione. Il menu e' composto da una lista di giochi presenti sulla scheda microSD suddivisi in varie pagine e da una sezione per la selezione selezione per la velocitá di esecuzione e la modalitá di esecuzione. Un aspetto importante \'e che l'aggiunta di un gioco non comporta la necessit\'a di modificare il codice, in quanto il men\'u \'e generato dinamicamente in base ai file presenti sulla scheda microSD. Inoltre, baster\'a aggiungere un file scritto in linguaggio CHIP-8 o S-CHIP e riavviare il microcontrollore per essere pronti a giocare.
 
 Si puo' notare nel listato \ref{menu} che la selezione del gioco avviene tramite il tastierino, in particolare i tasti \texttt{7} e \texttt{15} permettono di navigare tra le pagine. Il tasto \texttt{0} permette di selezionare la modalitá di esecuzione ciclando tra le 3 modalitá disponibili: \texttt{CHIP8}, \texttt{SCHIP1.0} e \texttt{SCHIP1.1}; invece, il tasto \texttt{8} permette di selezionare la velocitá di esecuzione ciclando tra le 4 preimpostate \texttt{600}, \texttt{1200}, \texttt{1800} e \texttt{2400}. Gli altri tasti sono riservati per avviare il gioco selezionato.
 
@@ -595,7 +595,18 @@ Una volta completato il software, come gi\'a anticipato nella proposta di proget
 
 Per la realizzazione, abbiamo utilizato una base di supporto polifunzionale\footnote{\url{https://www.gewiss.com/al/it/prodotti/product.1000002.1000090.GW42002}} di dimensione $200 \times 150 \times 60$ correttamente rifinita per consentire la fuoriuscita del \textit{display} e del \textit{keypad} nella parte superiore e laterlamente sono stati applicati dei fori di dimensione variabile per permettere al grazioso suono del \textit{beeper} di raggiungere le orecchie dell'ascoltatore e avere un interruttore per l'accsione e spegnimento della scheda.
 
-Internamente alla base di supporto, i collegamenti sono rimasti quelli descritti in sezione \ref{subsubsec:collegamenti} visibili in figura \ref{fig:schematic}. Ma abbiamo aggiunto delle batterie esterne come alimentazione per la scheda evitando di doverla collegare ad una presa di corrente. Come si pu\'o notare in figura \ref{fig:box1} lo schermo \'e esterno alla scatola per permettere l'incastro con la scheda attraverso i pins dello \textit{shield} in modo da non utilizzare colla o nastri adesivi. Per il keypad abbiamo utilizzato un nastro biadesivo per attaccarlo alla base di supporto, in quanto le lettere del keypad non rispecchiavano le originali del Cosmac Vip\footnote{https://en.wikipedia.org/wiki/COSMAC\_VIP} abbiamo deciso di ricoprire i tasti incorretti con un adesivo indicante la lettera originale.
+\begin{figure}[h!t]
+    \begin{center}
+        % \includegraphics[scale=0.3]{figures/screenopt.pdf}
+        \includegraphics[scale=0.2]{./figures/end1.jpg}
+        \includegraphics[scale=0.268]{./figures/end2.jpg}
+        \includegraphics[scale=0.244]{./figures/end3.jpg}
+    \end{center}
+    \caption{Assemblaggio finale.}
+    \label{fig:assemblaggio}
+\end{figure}
+
+Internamente alla base di supporto, i collegamenti sono rimasti quelli descritti in sezione \ref{subsubsec:collegamenti} visibili in figura \ref{fig:schematic}. Ma abbiamo aggiunto delle batterie esterne come alimentazione per la scheda evitando di doverla collegare ad una presa di corrente. Come si pu\'o notare in figura \ref{fig:assemblaggio} lo schermo \'e esterno alla scatola per permettere l'incastro con la scheda attraverso i pins dello \textit{shield} in modo da non utilizzare colla o nastri adesivi. Per il keypad abbiamo utilizzato un nastro biadesivo per attaccarlo alla base di supporto, in quanto le lettere del keypad non rispecchiavano le originali del Cosmac Vip\footnote{https://en.wikipedia.org/wiki/COSMAC\_VIP} abbiamo deciso di ricoprire i tasti incorretti con un adesivo indicante la lettera originale.
 
 Il risultato finale dell'assemblaggio punta ad essere a scopo dimostrativo. Se si puntasse ad un prodotto commerciale, sarebbe necessaria una PCB ad-hoc al posto della \textit{development board} di STM32 per ridurre la dimensione del prodotto, eventualmente un \textit{case 3D printed} pi\'u piccolo per aumentarne la portabilit\'a e in caso di miglior feedback tattile un \textit{keypad} di qualit\'a superiore.
 
@@ -618,7 +629,37 @@ Per calcolare il consumo energetico, abbiamo utilizzato la formula
 
 \section{Considerazioni finali e sviluppi futuri}
 
-Aggiornare solo la sprite che è stata modificata.
+Il progetto ha avuto successo, in quanto abbiamo raggiunto tutti gli obiettivi prefissati. Abbiamo sviluppato un emulatore di CHIP-8 e S-CHIP, lo abbiamo portato su un microcontrollore STM32 e abbiamo assemblato il tutto in un case. Abbiamo anche misurato il consumo energetico del progetto e abbiamo stimato che può rimanere acceso per circa 35 ore.
+
+Il progetto ha avuto un impatto positivo sul nostro apprendimento, in quanto abbiamo imparato a sviluppare un emulatore e a lavorare con un microcontrollore, con tutte le sfide che questo comporta.
+
+Per quanto riguarda i tempi di realizzazione, abbiamo rispettato i tempi previsti. Come si pu\'o vedere nella tabella sottostante, i tempi previsti e i tempi effettivi sono gli stessi ma sono stati distrubuiti in modo diverso.
+I tempi stimati per l'oottimizzazione del software sono stati ridotti, in quanto abbiamo credevamo che sarebbe stato un lavoro pi\'u impegnativo. Mentre, i tempi stimati per la realizzazione del driver video sono stati aumentati, in quanto avevamo visto che usando la HAL era troppo lento e quindi abbiamo dovuto implemetare le funzioni bare metal come spiiegato in sezione \ref{subsubsec:sd}.
+
+\begin{center}
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|l|l|l|}
+            \hline
+            \textbf{Nome}                         & \textbf{Tempo di lavoro Stimato} & \textbf{Tempo di lavoro Effettivo} \\ \hline
+            Macchina virtuale                     & 3 settimane                      & 3 settimane                      \\ \hline
+            Driver video                          & 1 settimana                      & 2 settimane                      \\ \hline
+            Driver microSD                        & 3 giorni                         & 3 giorni                         \\ \hline
+            Driver keypad                         & 1 giorno                         & 3 giorni                         \\ \hline
+            Driver audio                          & 5 giorni                         & 2 giorni                         \\ \hline
+            Menu di selezione                     & 5 giorni                         & 1 settimana                      \\ \hline
+            Ottimizzazione software               & 2 settimane                      & 1 settimane                      \\ \hline
+            \multicolumn{1}{|r|}{\textbf{Totale}} & 2 mesi                           & 2 mesi                           \\ \hline
+        \end{tabular}
+        \caption{
+            Tempi previsti ed effettivi per la realizzazione dei componenti software
+        }
+    \end{table}
+\end{center}
+
+Come sviluppi futuri, abbiamo deciso di sviluppare un \textit{assembler} che permette dato un file scritto in linguaggio CHIP-8 o S-CHIP di generare un file binario che può essere eseguito dall'emulatore. Inoltre, abbiamo deciso di sviluppare un \textit{disassembler} che permette di convertire un file binario in un file scritto in linguaggio CHIP-8 o S-CHIP. Questi due strumenti permetterebbero di semplificare la creazione di nuovi giochi per CHIP-8 e S-CHIP. E li renderemo disponibili all'interno dell'organizzazione GitHub\footnote{\url{https://github come parte del nostro progetto open-source.com/CHIP-8-Org}}.
+
+Come miglioramento, abbiamo deciso di implementare un'ottimizzazione che permette di aggiornare solo la sprite che è stata modificata. Questo permetterebbe di ridurre il numero di volte in cui lo schermo viene aggiornato e di conseguenza ridurre il consumo energetico. Sar\'a un lavoro impegnativo, in quanto richiede di modificare l'emulatore e di implementare un'API che permette di ricevere le coordinate della sprite che è stata modificata.
 
 \addcontentsline{toc}{section}{Riferimenti bibliografici}
 \bibliographystyle{plain}
