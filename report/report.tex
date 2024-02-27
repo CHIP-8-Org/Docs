@@ -614,16 +614,14 @@ Il risultato finale dell'assemblaggio punta ad essere a scopo dimostrativo. Se s
 
 La scheda \texttt{STM32F334R8T6} permette di essere alimentata tramite un cavo USB o una batteria esterna. Per motivi di portabilit\'a, nel nostro caso abbiamo deciso di utilizzare 4 batterie AA da 1.5V per un totale di 6V. Non \'e stato un lavoro particolarmente difficile, in quanto la scheda \texttt{STM32F334R8T6} ha un regolatore di tensione integrato che permette di essere alimentata da 3.3V a 5V, quindi abbiamo collegato le batterie in serie e abbiamo collegato il positivo e il negativo al pin \texttt{VDD} e \texttt{GND} della scheda.
 
-Per avere una stima di quanto tempo il nostro progetto potesse rimanere accesso, abbiamo deciso di misurare il consumo energetico. Per fare ci\'o abbiamo il software fornito da ST Microelectronics chiamato \textit{STM32CubeIDE} il quale permette di misurare il consumo energetico della scheda.
-
-Il nostro progetto consuma all'incirca 80 mAh, quindi con 4 batterie AA da 1.5V, che hanno una capacità di 2500 mAh, il nostro progetto può rimanere acceso per circa 35 ore.
+Per avere una stima di quanto tempo il nostro progetto potesse rimanere accesso, abbiamo deciso di misurare il consumo energetico. Per fare ci\'o abbiamo il software fornito da ST Microelectronics chiamato \textit{STM32CubeIDE} il quale permette di misurare il consumo energetico della scheda, che si aggira intorno ai 30 mAh. Il consumo energentico del display \'e noto e consuma all'incirca 50 mAh per la retroilluminazione e 10 mAh per il display (TFT). Quindi il nostro progetto consuma all'incirca 90 mAh, quindi con 4 batterie AA da 1.5V, che hanno una capacità di 2500 mAh, il nostro progetto può rimanere acceso per circa 120 ore.
 
 Per calcolare il consumo energetico, abbiamo utilizzato la formula
 \begin{equation*}
     \begin{aligned}
         \textmd{time} \ (\texttt{h}) & = \frac{\textmd{capacity} \ (\texttt{mA})}{\textmd{consumption} \ (\texttt{mAh})}\\
-                                     & = \frac{4 * 2500 \ \texttt{mA}}{80 \ \texttt{mAh}}\\
-                                     & = 40 \ \texttt{h}
+                                     & = \frac{4 * 2700 \ \texttt{mA}}{90 \ \texttt{mAh}}\\
+                                     & = 120 \ \texttt{h}
     \end{aligned}
 \end{equation*}
 
@@ -642,14 +640,14 @@ I tempi stimati per l'ottimizzazione del software sono stati ridotti, in quanto 
         \begin{tabular}{|l|l|l|}
             \hline
             \textbf{Nome}                         & \textbf{Tempo di lavoro Stimato} & \textbf{Tempo di lavoro Effettivo} \\ \hline
-            Macchina virtuale                     & 3 settimane                      & 3 settimane                      \\ \hline
-            Driver video                          & 1 settimana                      & 2 settimane                      \\ \hline
-            Driver microSD                        & 3 giorni                         & 3 giorni                         \\ \hline
-            Driver keypad                         & 1 giorno                         & 3 giorni                         \\ \hline
-            Driver audio                          & 5 giorni                         & 2 giorni                         \\ \hline
-            Menu di selezione                     & 5 giorni                         & 1 settimana                      \\ \hline
-            Ottimizzazione software               & 2 settimane                      & 1 settimane                      \\ \hline
-            \multicolumn{1}{|r|}{\textbf{Totale}} & 2 mesi                           & 2 mesi                           \\ \hline
+            Macchina virtuale                     & 3 settimane                      & 3 settimane                        \\ \hline
+            Driver video                          & 1 settimana                      & 2 settimane                        \\ \hline
+            Driver microSD                        & 3 giorni                         & 3 giorni                           \\ \hline
+            Driver keypad                         & 1 giorno                         & 3 giorni                           \\ \hline
+            Driver audio                          & 5 giorni                         & 2 giorni                           \\ \hline
+            Menu di selezione                     & 5 giorni                         & 1 settimana                        \\ \hline
+            Ottimizzazione software               & 2 settimane                      & 1 settimane                        \\ \hline
+            \multicolumn{1}{|r|}{\textbf{Totale}} & 2 mesi                           & 2 mesi                             \\ \hline
         \end{tabular}
         \caption{
             Tempi previsti ed effettivi per la realizzazione dei componenti software
