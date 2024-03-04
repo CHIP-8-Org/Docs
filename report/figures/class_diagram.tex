@@ -8,21 +8,22 @@
 
   \begin{class}[text width=3cm]{Keypad}{0,-2}
       \operation{+ interrupt()}
-      \operation{+ \sout{polling()}}
   \end{class}
 
-  \begin{class}[text width=1.7cm]{Chip8}{3,-3}
+  \begin{class}[text width=1.7cm]{VM}{3,-3}
     \operation{+ init()}
-    \operation{+ cylce()}
+    \operation{+ cycle()}
+    \operation{+ timers()}
+    \operation{+ sound()}
     \operation{+ ended()}
   \end{class}
 
 
   \begin{class}[text width=3.5cm]{ILI9341}{6, -4}
-    \operation{+ init(\texttt{Pin[13]})}
-    \operation{+ drawMenu(\texttt{char*[]})}
-    \operation{+ fillScreen(\texttt{uint16\_t})}
-    \operation{+ drawGame(\texttt{char[]})}
+    \operation{+ init()}
+    \operation{+ fillScreen()}
+    \operation{+ drawMenu()}
+    \operation{+ drawGame()}
   \end{class}
 
   \begin{class}[text width=1.7cm]{Beeper}{9,-3}
@@ -30,11 +31,11 @@
       \operation{+ low()}
   \end{class}
 
-  \begin{class}[text width=3cm]{SD}{12, -2}
+  \begin{class}[text width=3cm]{FatFS}{12, -2}
     \operation{+ mount()}
+    \operation{+ readdir()}
     \operation{+ open()}
     \operation{+ read()}
-    \operation{+ readFile(\texttt{char[]})}
     \operation{+ close()}
   \end{class}
 
@@ -43,14 +44,14 @@
   % \end{class}
 
     % \draw [umlcd style dashed line , ->] (Menu) -- node [ above , sloped , black ]{} (Keypad) ;
-    % \draw [umlcd style dashed line , ->] (Menu) -- node [ above , sloped , black ]{} (SD) ;
+    % \draw [umlcd style dashed line , ->] (Menu) -- node [ above , sloped , black ]{} (FatFS) ;
     % \draw [umlcd style dashed line , fill=white, ->] (Menu) -- node [ below  , black ]{} (ILI9341) ;
 
     % \draw [umlcd style dashed line , ->] (Main) -- node [ above , sloped , black ]{} (Menu) ;
-    \draw [umlcd style dashed line , ->] (Main) -- node [ above , sloped , black ]{} (Chip8) ;
+    \draw [umlcd style dashed line , ->] (Main) -- node [ above , sloped , black ]{} (VM) ;
     \draw [umlcd style dashed line , ->] (Main) -- node [ above , sloped , black ]{} (Keypad) ;
     \draw [umlcd style dashed line , ->] (Main) -- node [ above , sloped , black ]{} (Beeper) ;
-    \draw [umlcd style dashed line , fill=white, ->] (Main) -- node [ below , sloped , black ]{} (SD) ;
+    \draw [umlcd style dashed line , fill=white, ->] (Main) -- node [ below , sloped , black ]{} (FatFS) ;
     \draw [umlcd style dashed line , fill=white, ->] (Main) -- node [ below , sloped , black ]{} (ILI9341) ;
 
     \begin{scope}[xshift=0cm, yshift=0cm] % Adjust the positioning of the legend

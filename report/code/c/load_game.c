@@ -1,11 +1,9 @@
-@\textbf{\textcolor{DarkBloodRed}{FRESULT}}@ fres;                    // File result
-@\textbf{\textcolor{DarkBloodRed}{FIL}}@ fil;                         // File handler
-@\textbf{\textcolor{DarkBloodRed}{UINT}}@ bytesRead;                  // Bytes read from file
-@\textbf{\textcolor{DarkBloodRed}{unsigned char}}@ *file_data = NULL; // Pointer to file data
-
-fres = f_open(&fil, games[game_selected], FA_READ);
-data = malloc(f_size(&fil));
-f_read(&fil, file_data, (@\textbf{\textcolor{DarkBloodRed}{UINT}}@)f_size(&fil), &bytesRead);
+@\textbf{\textcolor{DarkBloodRed}{FIL}}@ fil;
+f_open(&fil, games[chosen], FA_READ);
+@\textbf{\textcolor{DarkBloodRed}{FSIZE\_t}}@ size = f_size(&fil);
+@\textbf{\textcolor{DarkBloodRed}{unsigned char}}@ *data = malloc(size);
+@\textbf{\textcolor{DarkBloodRed}{UINT}}@ bytes_read;
+f_read(&fil, data, size, &bytes_read);
 f_close(&fil);
-memcpy(&vm.RAM[PC_OFFSET], data, f_size(&fil));
+memcpy(&vm.RAM[PC_OFFSET], data, size);
 free(data);

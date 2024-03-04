@@ -2,34 +2,34 @@
         \begin{sequencediagram}
         \newthread{main}{:Main}
         % \newinst[0.5]{menu}{:Menu}
-        \newinst[0.5]{vm}{:Chip8}
+        \newinst[0.5]{vm}{:VM}
         \newinst[0.5]{lcd}{:ILI9341}
         \newinst[0.5]{kp}{:Keypad}
         \newinst[0.5]{beep}{:Beeper}
-        \newinst[0.5]{sd}{:SD}
+        \newinst[0.5]{fatfs}{:FatFS}
 
-        \begin{call}{main}{mount(); open(); read();}{sd}{}
+        \begin{call}{main}{mount(); readdir()}{fatfs}{}
         \end{call}
-        \begin{sdblock}{Game Selection Loop (Menu)}{}
+        \begin{sdblock}{Game Selection Loop}{}
+            \begin{call}{main}{drawMenu()}{lcd}{}
+            \end{call}
             \begin{call}{main}{interrupt()}{kp}{}
             \end{call}
-            \begin{call}{main}{drawMenu(\texttt{char*[]})}{lcd}{}
-            \end{call}
         \end{sdblock}
-        \begin{call}{main}{readFile(\texttt{char[]})}{sd}{}
+        \begin{call}{main}{open(); read()}{fatfs}{}
         \end{call}
 
         \begin{call}{main}{init()}{vm}{}
         \end{call}
 
-        \begin{sdblock}{Main Loop}{}
-            \begin{call}{main}{interrupt()}{kp}{}
-            \end{call}
+        \begin{sdblock}{Game Loop}{}
             \begin{call}{main}{cycle()}{vm}{}
             \end{call}
-            \begin{call}{main}{high() / low()}{beep}{}
+            \begin{call}{main}{drawGame()}{lcd}{}
             \end{call}
-            \begin{call}{main}{drawGame(\texttt{char[]})}{lcd}{}
+            \begin{call}{main}{interrupt()}{kp}{}
+            \end{call}
+            \begin{call}{main}{high() / low()}{beep}{}
             \end{call}
         \end{sdblock}
         \end{sequencediagram}

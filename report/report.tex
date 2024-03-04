@@ -8,16 +8,6 @@
 \usepackage{mathtools}
 \usepackage{bm}
 
-% \begin{center}
-% \showc*[.75\textwidth]{test.c}
-% \end{center}
-
-% \begin{Listing} % [ht]
-%     \centering
-%         \showc*[.5\textwidth]{test.c}
-%         \caption{A C program.}\label{c}
-% \end{Listing}
-
 \usepackage[a4paper]{geometry}
 \usepackage[hidelinks]{hyperref}
 \usepackage{eurosym}
@@ -35,26 +25,12 @@
 
 \definecolor{type}{RGB}{132, 42, 17}
 
-% \setlength{\parskip}{1.2ex}
-% \setlength{\parindent}{0em}
-% \clubpenalty = 100
-% \widowpenalty = 100
-
-% \title{CHIP-8 STM32}
-% \date{\today}
-% \author{Federico Bruzzone, Lorenzo Ferrante, Andrea Longoni \\
-% \footnotesize \texttt{\{federico.bruzzone, lorenzo.ferrante1, andrea.longoni3\}@studenti.unimi.it} \\ }
-
 \textwidth=450pt
 \oddsidemargin=0pt
 \textheight=665pt
 \voffset=-50pt
 
-% \singlespacing
-
 \begin{document}
-% \maketitle
-% \newpage
 
 \begin{titlepage}
     \begin{center}
@@ -70,7 +46,7 @@
         \vspace*{1cm}
 
         \huge
-        CHIP-8 STM32
+        Emulatore CHIP-8 su STM32
 
         \large Relazione per il progetto di PROS, \\
         corso tenuto da \textbf{Danilo Bruschi}
@@ -79,14 +55,12 @@
         \vspace*{4cm}
 
         \begin{minipage}[t]{0.47\textwidth}
-            {Email: } \vspace{0.3em} \\
             {\large \href{federico.bruzzone@studenti.unimi.it}{federico.bruzzone@studenti.unimi.it}} \vspace{1em}  \\
             {\large \href{lorenzo.ferrante1@studenti.unimi.it}{lorenzo.ferrante1@studenti.unimi.it}} \vspace{1em}  \\
             {\large \href{andrea.longoni3@studenti.unimi.it}{andrea.longoni3@studenti.unimi.it}} \vspace{1em}  \\
         \end{minipage}
         \hfill
         \begin{minipage}[t]{0.47\textwidth}\raggedleft
-            {Creato da:} \hspace{-0.9em} \vspace{0.3em} \\
             {\large \textbf{Federico Bruzzone}} \\
             \vspace{1em}
             {\large \textbf{Lorenzo Ferrante}} \\
@@ -101,7 +75,6 @@
 \end{titlepage}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.8em}
-% \linespread{1.5}
 
 \tableofcontents
 \listoffigures
@@ -113,23 +86,22 @@
 \fbox{
     \begin{minipage}{0.9\textwidth}
     \footnotesize\itshape
-    Per divulgazione abbiamo deciso di rendere pubblico il nostro progetto. Questo documento è stato scritto con l'intento di essere comprensibile a chiunque abbia una conoscenza di sistemi operativi e sitemi embedded. Inoltre, abbiamo deciso creare un'organizzazione GitHub chiamata \textbf{Chip-8-Org}\footnote{\url{https://github.com/CHIP-8-Org}} per rendere pubblico il codice sorgente della virtual machine\footnote{\url{https://github.com/CHIP-8-Org/Core}}, il porting su STM32 con il codice relativo alle interfaccie hardware\footnote{\url{https://github.com/CHIP-8-Org/CHIP-8-STM32}} e i latex relativi a questa relazione e alla proposta\footnote{\url{https://github.com/CHIP-8-Org/Latex}}. L'obiettivo di questa azione è quello di promuovere la conoscenza di CHIP-8 e S-CHIP e di rendere disponibile un progetto open-source per chiunque sia interessato a sviluppare un emulatore per CHIP-8 o S-CHIP.
+    Abbiamo deciso di creare un'organizzazione GitHub per rendere accessibile il codice
+    sorgente del nostro progetto ad altri programmatori open-source coinvolti con lo sviluppo
+    di emulatori e con la community online di CHIP-8.
     \\
     \\
-    GitHub:
+    Link all'organizzazione:
     \begin{itemize}
-        \item Organizzazione: \url{https://github.com/CHIP-8-Org}
-        \item Federico Bruzzone: \url{https://github.com/FedericoBruzzone}
-        \item Lorenzo Ferrante: \url{https://github.com/0xHaru}
-        \item Andrea Longoni: \url{https://github.com/Andreal2000}
+        \item Macchina virtuale: \url{https://github.com/CHIP-8-Org/Core}
+        \item Port su STM32: \url{https://github.com/CHIP-8-Org/STM32-Port}
+        \item Documentazione: \url{https://github.com/CHIP-8-Org/Docs}
     \end{itemize}
     \end{minipage}
 }
 \end{center}
 
 \section{Introduzione}
-
-% TODO: includere una foto dell'emulatore finito e funzionante
 
 CHIP-8 è un linguaggio di programmazione creato a metà degli anni '70
 da Joseph Weisbecker per semplificare lo sviluppo di videogiochi per
@@ -144,7 +116,7 @@ realizzati ancora oggi.
 Nel corso degli anni molti videogiochi storici sono stati riscritti
 in CHIP-8 tra cui Pong, Space Invaders e Tetris.
 
-Lo scopo del progetto è quello di costruire un emulatore CHIP-8 e
+Lo scopo del progetto è quello di realizzare un emulatore CHIP-8 e
 S-CHIP in grado di funzionare su un microcontrollore STM32.
 
 In questo documento ci riferiremo alla macchina virtuale che
@@ -156,31 +128,38 @@ macchina virtuale.
 
 \section{Stato dell'arte}
 
-Al giorno d'oggi risulta difficile ottenere un numero esatto di utenti che utilizzano CHIP-8, un buon indicatore può essere il topic "chip8" di GitHub che raggruppa quasi un migliaio di repository.
+Al giorno d'oggi risulta difficile ottenere un numero esatto di utenti che
+utilizzano CHIP-8,un buon indicatore può essere il topic "chip8" di GitHub
+che raggruppa quasi un migliaio di repository.
 
-Tra queste la più popolare è Octo, un'implementazione scritta in JavaScript capace di eseguire la versione base di CHIP-8, S-CHIP e XO-CHIP nel browser. La repository è mantenuta da John Earnest, l'inventore di XO-CHIP che nel 2014 ha riportato in vita CHIP-8 modernizzandolo e aggiungendo nuove funzionalità.
+Tra queste la più popolare è Octo, un'implementazione scritta in JavaScript
+capace di eseguire la versione base di CHIP-8, S-CHIP e XO-CHIP nel browser.
+La repository è mantenuta da John Earnest, l'inventore di XO-CHIP che nel 2014
+ha riportato in vita CHIP-8 modernizzandolo e aggiungendo nuove funzionalità.
 
-Inoltre ogni anno viene organizzata la Octojam, una game jam dove ogni partecipante prova a sviluppare un videogioco per CHIP-8 (o per le sue estensioni) partendo da zero.
+Inoltre ogni anno viene organizzata la Octojam, una game jam dove ogni partecipante
+prova a sviluppare un videogioco per CHIP-8 (o per le sue estensioni) partendo da zero.
 
-Grazie al suo instruction set ridotto e alla sua limitata richiesta di risorse hardware è stato portato su un elevato numero di piattaforme, tra cui il Game Boy Color, calcolatrici grafiche serie HP 48 e Emacs (il famoso editor di testo).
+Grazie al suo instruction set ridotto e alla sua limitata richiesta di risorse hardware
+è stato portato su un elevato numero di piattaforme, tra cui il Game Boy Color, calcolatrici
+grafiche serie HP 48 e Emacs (il famoso editor di testo).
 
-Sebbene CHIP-8 e S-CHIP siano stati tradizionalmente implementati tramite software esistono anche implementazioni hardware. Ne citiamo una in particolare scritta nel linguaggio Verilog per schede FPGA.
+Sebbene CHIP-8 e S-CHIP siano stati tradizionalmente implementati tramite software
+esistono anche implementazioni hardware. Ne citiamo una in particolare scritta nel
+linguaggio Verilog per schede FPGA.
 
 \section{Hardware}\label{sec:hardware}
 
-Le componenti principali utilizzate per la relizzazione del progetto sono 5:
-una scheda ST \texttt{STM32F334R8T6} (Fig. \ref{fig:stm32f334}), uno schermo
-TFT LCD ILI9341 (Fig. \ref{fig:ili9341}), e un lettore di schede microSD
-integrato nello schermo, un tastierino matriciale 4$\times$4 e un beeper.
+Il componente hardware principale è il microcontrollore \texttt{STM32F334R8T6}
+(Fig. \ref{fig:stm32f334}), equipaggiato con un processore ARM Cortex-M4
+da 72 \texttt{MHz}, 16 \texttt{Kb} di SRAM e 64 \texttt{Kb}
+di memoria flash. Abbiamo deciso di utilizzare questa scheda anziché
+quella fornitaci durante il corso (\texttt{STM32L053R8T6}) perché quest'ultima
+offriva una quantità di SRAM troppo limitata (solo 8 \texttt{Kb}).
 
-Il componente principale è il microcontrollore \texttt{STM32F334R8T6} basato su
-architettura ARM con processore Cortex-M4 da 72 \texttt{MHz}, 64 \texttt{Kb} di
-memoria flash e 16 \texttt{Kb} di SRAM. Abbiamo deciso di utilizzare questa
-scheda perché le ROM dei giochi CHIP-8 e S-CHIP hanno dimensione massima di 4
-\texttt{Kb}. Considerando questo e il fatto che la macchina virtuale necessita
-4 \texttt{Kb} per poter funzionare non è stato potuto utilizzare la scheda
-\texttt{STM32L053R8T6} fornitaci durante il corso a causa della sua quantità
-limita di SRAM, precisamente 8 \texttt{Kb}.
+In particolare le ROM dei giochi CHIP-8 possono arrivare a pesare
+fino a 3.5 \texttt{Kb} per questo motivo è stato necessario utilizzare
+una scheda leggermente più potente.
 
 \begin{figure}[h!t]
     \begin{subfigure}[b]{0.45\textwidth}
@@ -202,12 +181,10 @@ limita di SRAM, precisamente 8 \texttt{Kb}.
     \end{subfigure}
 \end{figure}
 
-Il secondo componente che abbiamo utilizzato è un display TFT LCD
-(thin-film-transistor liquid-crystal display) a colori retroilluminato
-(Fig. \ref{fig:ili9341}),
-per poterci interfacciare con l'emulatore. Questo display, da 2.4 pollici,
-è basato sul controller \texttt{ILI9341} e ha una risoluzione di
-320$\times$240 \texttt{px}.
+Per quanto riguarda lo schermo dell'emulatore abbiamo optato per un display TFT LCD
+a colori retroilluminato (Fig. \ref{fig:ili9341}) basato sul controller \texttt{ILI9341}.
+Il display ha una dimensione di 2.4 pollici, una risoluzione di 320$\times$240\texttt{px} e
+al suo interno è presente un lettore di schede microSD integrato.
 
 \begin{figure}[h!t]
     \begin{subfigure}[b]{0.45\textwidth}
@@ -229,14 +206,10 @@ per poterci interfacciare con l'emulatore. Questo display, da 2.4 pollici,
     \end{subfigure}
 \end{figure}
 
-Il terzo componente è un lettore di schede microSD integrato nello schermo
-(Fig. \ref{fig:ili9341}). Questo componente è basato sul controller
-\texttt{ILI9341} che permette di interfacciarsi con una microSD formattata in
-FAT32, sulla quale è possibile salvare file di dimensione massima 4 \texttt{Gb}
-e per un totale di 2 \texttt{Tb} di dati.
-
-Per interagire con l'emulatore abbamo utilizzato una tastiera matriciale 4$\times$4
-corrispondente alla tastiera esadecimale originale del CHIP-8 (Fig. \ref{fig:4x4_keypad}).
+Per poter interagire con l'emulatore abbiamo utilizzato un tastierino matriciale 4$\times$4
+(Fig. \ref{fig:4x4_keypad}) analogo alla tastiera originale del
+COSMAC VIP\footnote{https://en.wikipedia.org/wiki/COSMAC\_VIP}, un microcomputer
+creato da Joseph Weisbecker appositamente per CHIP-8.
 
 \begin{figure}[h!t]
     \begin{subfigure}[b]{0.45\textwidth}
@@ -256,17 +229,39 @@ corrispondente alla tastiera esadecimale originale del CHIP-8 (Fig. \ref{fig:4x4
     \end{subfigure}
 \end{figure}
 
-Come ultimo componenete, per riprodurre gli effetti sonori generati dal gioco
-un beeper passivo monotono è stato collegato al microcontrollore tramite un
-GPIO output e GND. In CHIP-8 e S-CHIP vi è un solo frequenza che può
-essere riprodotta durante tutta l'esecuzione del gioco.
+Infine, per supportare gli effetti sonori riprodotti dai videogiochi CHIP-8 abbiamo
+utilizzato un beeper passivo monotono, che anche essendo un dispositivo molto semplice
+adempie correttamente ai suoi compiti dato che il suono prodotto da un emulatore CHIP-8
+deve avere solo un tono.
 
-In oltre, abbiamo deciso di aggiungere uno slot per l'alimentazione tramite
-due batterie \texttt{AA}.
+\subsection{Componenti utilizzati e relativi costi}
+
+\begin{table}[h!t] % [ht]
+    \centering
+    \begin{tabular}{|llll|l|}
+        \hline
+        \multicolumn{1}{|l|}{\textbf{Descrizione}}          & \multicolumn{1}{l|}{\textbf{Modello}}       & \multicolumn{1}{l|}{\textbf{Costo unitario}} & \textbf{Unità} & \textbf{Costo} \\ \hline
+        \multicolumn{1}{|l|}{Microcontrollore}       & \multicolumn{1}{l|}{STM32 F334R8T6}         & \multicolumn{1}{l|}{14.99}                   & 1               & 14.99          \\ \hline
+        \multicolumn{1}{|l|}{Schermo}                & \multicolumn{1}{l|}{ILI9341 2.4"}           & \multicolumn{1}{l|}{6.50}                    & 1               & 6.50           \\ \hline
+        \multicolumn{1}{|l|}{Tastierino}          & \multicolumn{1}{l|}{Matrix keypad 4$\times$4} & \multicolumn{1}{l|}{3.99}                    & 1               & 3.99           \\ \hline
+        \multicolumn{1}{|l|}{Beeper}                 & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{0.99}                    & 1               & 0.99           \\ \hline
+        \multicolumn{1}{|l|}{Cablaggio} & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{4.99}                    & 1               & 4.99           \\ \hline
+        \multicolumn{1}{|l|}{Interruttore e altri materiali} & \multicolumn{1}{l|}{}       & \multicolumn{1}{l|}{4.99}                    & 1               & 4.99           \\ \hline
+        \multicolumn{1}{|l|}{Scocca} & \multicolumn{1}{l|}{GW42002}                       & \multicolumn{1}{l|}{9.99}                    & 1               & 9.99           \\ \hline
+        \multicolumn{4}{|r|}{\textbf{Totale}}                                                      & 46.50\euro    \\ \hline
+    \end{tabular}
+    \caption{
+        Materiali utilizzati per la realizzazione del progetto.
+    }
+    \label{tab:components}
+\end{table}
+
+In Tabella \ref{tab:components} è possibile vedere i componenti utilizzati per la
+realizzazione del progetto. I costi indicati provengono da negozi online come Amazon e eBay.
 
 \subsection{Schema di collegamento}
 
-\textbf{Legenda dei colori in Figura \ref{fig:schematic}}
+\textbf{Legenda dei colori in Figura \ref{fig:schema}}
 
 \begin{itemize}
     \item \textcolor{green}{Verde}: Schermo
@@ -283,61 +278,60 @@ due batterie \texttt{AA}.
         \includegraphics[scale=0.50]{figures/STM32_CHIP8.pdf}
     \end{center}
     \caption{
-        Schematic del progetto.
+        Schema del progetto.
     }
-    \label{fig:schematic}
+    \label{fig:schema}
 \end{figure}
 
-\subsubsection{Descrizione del collegamento dei componenti}\label{subsubsec:collegamenti}
+\subsubsection{Schema di collegamento}\label{subsubsec:collegamenti}
 
-In Figura \ref{fig:schematic} è possibile vedere lo schema di collegamento
-delle componenti utilizzate per la realizzazione del progetto. Per realizzare lo schema è stato utilizzato il software \texttt{KiCad}. È importante notare, che lo schermo \texttt{ILI9341} e l'integrato lettore di schede microSD, utilizza lo pinout standard degli Shields di Arduino, ovvero un'interfaccia hardware che permette di collegare una scheda Arduino ad un modulo esterno. Quindi, è stato collegato al nostro microcontrollore STM32 utilizzando lo stesso pinout.
+In Figura \ref{fig:schema} è possibile vedere lo schema di collegamento
+dei componenti hardware realizzato utilizzando il software \texttt{KiCad}.
+Il display e il lettore microSD integrato sono stati collegati al microcontrollore
+attraverso il pinout standard degli Shields di Arduino, un'interfaccia hardware che permette
+di collegare una scheda Arduino ad un modulo esterno.
 
-Il tastierino matriciale 4$\times$4 è stato collegato al microcontrollore tramite 8 pin GPIO. In particolare i 4 pin relativi alle righe (\texttt{R1}, \texttt{R2}, \texttt{R3}, \texttt{R4}) sono stati impostati in modalità \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge). Quando si configura un pin GPIO come sorgente di interrupt su un fronte di salita, significa che l'interrupt verrà generato quando il livello logico del pin passa da basso (0) a alto (1). Questo è utile, ad esempio, quando si desidera intercettare un cambiamento di stato su un pulsante quando viene premuto. Invece, i 4 pin relativi alle colonne (\texttt{C1}, \texttt{C2}, \texttt{C3}, \texttt{C4}) sono stati impostati in modalità \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per permettere l'invio dell'interrupt alla pressione di un tasto, dato che chiudendo il circuito permettiamo alla corrente proveniente dal pin GPIO di fluire verso i pin di interrupt. Successivamente, viene identificato il tasto premuto come verrà spiegato nella sezione \ref{subsubsec:keypad}.
+Il tastierino matriciale 4$\times$4 è stato collegato al microcontrollore tramite 8 pin GPIO.
+In particolare i 4 pin relativi alle righe (\texttt{R1}, \texttt{R2}, \texttt{R3}, \texttt{R4})
+sono stati impostati in modalità \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge).
 
-L'ultimo componente è il beeper, che è stato collegato al microcontrollore tramite un pin GPIO e GND. Il pin GPIO è stato impostato in modalità \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per permettere l'invio di un segnale al beeper.
+Quando un pin GPIO viene configurato come sorgente di interrupt sul fronte di salita
+il segnale di interrupt è generato quando il pin passa da basso (0) ad alto (1), risultando
+particolarmente utile per intercettare il cambiamento dello stato di un
+pulsante quando viene premuto.
 
+Invece, i 4 pin relativi alle colonne (\texttt{C1}, \texttt{C2}, \texttt{C3}, \texttt{C4})
+sono stati impostati in modalità \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per
+consentire l'invio dell'interrupt alla pressione di un tasto, dato che chiudendo il circuito
+si permette alla corrente proveniente dal pin GPIO di fluire verso i pin di interrupt.
+Successivamente viene identificato il tasto premuto, questo meccanismo verrà elaborato
+nella sezione \ref{subsubsec:keypad}.
 
-\subsection{Componenti utilizzati e relativi costi}
-
-\begin{table}[h!t] % [ht]
-    \centering
-    \begin{tabular}{|llll|l|}
-        \hline
-        \multicolumn{1}{|l|}{\textbf{Descrizione}}          & \multicolumn{1}{l|}{\textbf{Modello}}       & \multicolumn{1}{l|}{\textbf{Costo unitario}} & \textbf{Unità} & \textbf{Costo} \\ \hline
-        \multicolumn{1}{|l|}{Microcontrollore}       & \multicolumn{1}{l|}{STM32 F334R8T6}         & \multicolumn{1}{l|}{14.99}                   & 1               & 14.99          \\ \hline
-        \multicolumn{1}{|l|}{Schermo}                & \multicolumn{1}{l|}{ILI9341 2.4"}           & \multicolumn{1}{l|}{6.50}                    & 1               & 6.50           \\ \hline
-        \multicolumn{1}{|l|}{Tastierino}          & \multicolumn{1}{l|}{Matrix keypad 4$\times$4} & \multicolumn{1}{l|}{3.99}                    & 1               & 3.99           \\ \hline
-        \multicolumn{1}{|l|}{Beeper}                 & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{0.99}                    & 1               & 0.99           \\ \hline
-        \multicolumn{1}{|l|}{Cablaggio} & \multicolumn{1}{l|}{}                       & \multicolumn{1}{l|}{4.99}                    & 1               & 4.99           \\ \hline
-        \multicolumn{1}{|l|}{Bottone e altri materiali} & \multicolumn{1}{l|}{}       & \multicolumn{1}{l|}{4.99}                    & 1               & 4.99           \\ \hline
-        \multicolumn{1}{|l|}{Scocca} & \multicolumn{1}{l|}{GW42002}                       & \multicolumn{1}{l|}{9.99}                    & 1               & 9.99           \\ \hline
-        \multicolumn{4}{|r|}{\textbf{Totale}}                                                      & 46.50\euro    \\ \hline
-    \end{tabular}
-    \caption{
-        Materiali utilizzati per la costruzione del progetto.
-    }
-    \label{tab:components}
-\end{table}
-
-In Tabella \ref{tab:components} è possibile vedere i componenti utilizzati per la realizzazione del progetto. I costi indicati provengono da negozi online come Amazon e eBay.
+Infine, il beeper è stato collegato al microcontrollore tramite un pin GPIO e GND.
+Quest'ultimo è stato impostato in modalità \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output)
+per permettere l'invio di un segnale al beeper.
 
 \section{Software}
 
-Il nostro software si divide in due componenti principali: l'interprete CHIP-8 e l'infrastruttura necessaria per "portarlo" sul microcontrollore STM32, ovvero l'interfaccia con lo schermo e i gestori per la scheda microSD, per il keypad e per il beeper come già anticipato nella sezione \ref{sec:hardware}.
+Il nostro software si divide in due componenti principali: l'interprete CHIP-8 e
+l'infrastruttura necessaria per "portarlo" sul microcontrollore STM32, ovvero l'interfaccia
+con lo schermo e i gestori per la scheda microSD, per il keypad e per il beeper.
 
 \subsection{Interprete CHIP-8}
 
-Un emulatore è un software progettato per replicare il funzionamento di un processore e di altre componenti di un sistema informatico, consentendo così l'esecuzione di programmi scritti per un'architettura specifica su un'altra architettura. Lo sviluppo di un emulatore richiede una dettagliata comprensione dell'architettura da emulare, il che è al di là dello scopo di questo corso.
+Abbiamo deciso di scrivere l'interprete da zero e per farlo è stato necessario consultare
+le specifiche (de facto standard) che definiscono il comportamento di un interprete CHIP-8
+\cite{cowgod:chip8} e S-CHIP \cite{cowgod:schip}.
 
-Nonostante questo, abbiamo deciso di scrivere l'interprete da zero e per farlo è stato necessario consultare le specifiche (de facto standard) che definiscono il comportamento di un interprete CHIP-8 \cite{cowgod:chip8} e S-CHIP \cite{cowgod:schip}.
-
-L'interprete ha un'architettura basata su registri e possiede 4 KB di memoria, 16 registri general purpose, un registro per gli indirizzi di memoria, un registro per il delay timer, un registro per il sound timer, uno stack per gestire le chiamate a subroutine, uno stack pointer e un program counter, come si puo` vedere nel listato \ref{chip8_struct}.
+L'interprete ha un'architettura basata su registri e possiede 4 KB di memoria, 16 registri
+general purpose, un registro per gli indirizzi di memoria, un registro per il delay timer,
+un registro per il sound timer, uno stack per gestire le chiamate a subroutine, uno stack pointer
+e un program counter.
 
 \begin{Listing}[h!t] % [ht]
     \centering
     \showc*[.8\textwidth]{chip8_struct.c}
-    \caption{Struttura dell'emulatore Chip8}
+    \caption{La struttura che rappresenta lo stato della macchina virtuale}
     \label{chip8_struct}
 \end{Listing}
 
@@ -358,9 +352,12 @@ Il programma è scritto in C99, non ha I/O ed è freestanding
 standard del C (libc). Tutto questo è mirato a rendere l'interprete
 altamente portabile.
 
-Per rimuovere la dipendenza da libc è stato necessario includere alcune funzioni direttamente da libgcc, in particolare abbiamo re-implementato le funzioni \texttt{memset} e \texttt{memcpy} . Inoltre, abbiamo trovato un modo alternativo per implementare le asserzioni e includere una funzione ad hoc per la generazione di numeri pseudo-casuali come si può vedere nel listato \ref{assert_rand}.
+Per rimuovere la dipendenza da libc è stato necessario includere
+alcune funzioni direttamente da libgcc, trovare un modo alternativo
+per implementare le asserzioni e includere una funzione ad hoc per
+la generazione di numeri casuali.
 
-TODO SPIEGARE IL CODICE
+% TODO - spiegare il codice
 
 \begin{Listing}[h!t]
     \centering
@@ -373,29 +370,62 @@ TODO SPIEGARE IL CODICE
     \label{assert_rand}
 \end{Listing}
 
-Infine per testare più comodamente l'interprete abbiamo sviluppato un semplice emulatore su desktop utilizzando SDL2 \cite{libsdl:about}, una libreria scritta in C che consente di gestire audio, video e input da tastiera. In seguito l'interprete è stato sottoposto ad un'apposita test suite \cite{github:chip8-test-suite} che mira a verificare il comportamento corretto di ciascun opcode.
+Infine per testare più comodamente l'interprete abbiamo sviluppato
+un semplice emulatore su desktop utilizzando SDL2
+\cite{libsdl:about}, una libreria scritta in C che consente di
+gestire audio, video e input da tastiera.
+In seguito l'interprete è stato sottoposto ad un'apposita
+test suite \cite{github:chip8-test-suite} che mira a verificare
+il comportamento corretto di ciascun opcode.
 
 \subsubsection{Gestione del timing}
 
-Uno dei problemi principali durante lo sviluppo di un emulatore è la gestione del timing, in particolare è necessario limitare la "velocità" dell'emulatore bloccando temporaneamente la sua esecuzione.
+Uno dei problemi principali durante lo sviluppo di un emulatore è
+la gestione del timing, in particolare è necessario limitare la
+"velocità" dell'emulatore bloccando temporaneamente la sua
+esecuzione.
 
-Inoltre abbiamo dovuto disaccoppiare la frequenza dell'interprete (regolabile dal giocatore) dalla frequenza del delay timer e del sound timer (costante a 60 Hz). Dove con frequenza dell'interprete ci riferiamo al numero di istruzioni che esegue ogni frame.
+Inoltre abbiamo dovuto disaccoppiare la frequenza dell'interprete
+(regolabile dal giocatore) dalla frequenza del delay timer e del
+sound timer (costante a 60 Hz). Dove con frequenza dell'interprete
+ci riferiamo al numero di istruzioni che esegue ogni frame.
 
-% Durante lo sviluppo abbiamo testato due soluzioni diverse.
+% TODO - "durante lo sviluppo abbiamo testato due soluzioni diverse"
 
-Inizialmente abbiamo optato per la gestione di una singola istruzione per ciclo di esecuzione, di conseguenza il ritardo del game loop risultava variabile e dipendeva dalla frequenza selezionata dal giocatore. Per assicurare una frequenza $\mathcal{F}$ di 60 Hz i timer venivano decrementati ogni n-esima iterazione del game loop, dove $n = \frac{\mathcal{F}}{60}$. Ad esempio se $\mathcal{F} = 540$, i timer venivano decrementati ogni $9^{\circ}$ ciclo.
+Inizialmente abbiamo optato per la gestione di una singola istruzione per ciclo di esecuzione,
+di conseguenza il ritardo del game loop risultava variabile e dipendeva dalla frequenza selezionata
+dal giocatore. Per assicurare una frequenza $\mathcal{F}$ di 60 Hz i timer venivano decrementati
+ogni n-esima iterazione del game loop, dove $n = \frac{\mathcal{F}}{60}$. Ad esempio se
+$\mathcal{F} = 540$, i timer venivano decrementati ogni $9^{\circ}$ ciclo.
 
-Purtroppo però questo approccio presenta un problema non trascurabile, ovvero effettua una chiamata ad una funzione simil-sleep per un periodo molto breve dopo ogni istruzione. Ad esempio se $\mathcal{F} = 540$, il ritardo di una sleep sarebbe solo di 1.85 ms, e questo genere di funzione non offre una precisione simile. Per questo motivo abbiamo optato per una soluzione differente.
+Purtroppo però questo approccio presenta un problema non trascurabile, ovvero effettua una chiamata
+ad una funzione simil-sleep per un periodo molto breve dopo ogni istruzione. Ad esempio se
+$\mathcal{F} = 540$, il ritardo di una sleep sarebbe solo di 1.85 ms, e questo genere di funzione
+non offre una precisione simile. Per questo motivo abbiamo optato per una soluzione differente.
 
-Abbiamo fissato il ritardo del game loop a 16.666 ms, un valore sufficientemente alto da non avere problemi di granularità. Inoltre in questo modo otteniamo un frame rate di 60 fps esatti. Avendo reso il ritardo costante abbiamo dovuto rendere variabile il numero di istruzioni gestite durante un ciclo di esecuzione. In particolare vengono gestite n istruzioni per ciclo, dove $n = \frac{\mathcal{F}}{60}$. Ad esempio se $\mathcal{F} = 540$, vengono gestite 9 istruzioni per ciclo. A questo punto dato che il game loop viene ripetuto con una frequenza di 60 Hz risulta banale gestire la frequenza dei timer.
+Abbiamo fissato il ritardo del game loop a 16.666 ms, un valore sufficientemente alto da non avere
+problemi di granularità. Inoltre in questo modo otteniamo un frame rate di 60 fps esatti.
+Avendo reso il ritardo costante abbiamo dovuto rendere variabile il numero di istruzioni gestite
+durante un ciclo di esecuzione. In particolare vengono gestite n istruzioni per ciclo,
+dove $n = \frac{\mathcal{F}}{60}$. Ad esempio se $\mathcal{F} = 540$, vengono gestite 9 istruzioni
+per ciclo. A questo punto dato che il game loop viene ripetuto con una frequenza di 60 Hz risulta
+banale gestire la frequenza dei timer.
 
-Sono state considerate anche eventuali problematiche che sarebbero potute sorgere con questo approccio. In particolare non tutte le istruzioni impiegano lo stesso tempo per essere eseguite, ma fortunatamente anche l'istruzione più lenta richiede una quantità trascurabile di tempo. Ciò significa che possiamo comportarci come se tutte le istruzioni richiedessero il medesimo tempo.
+Sono state considerate anche eventuali problematiche che sarebbero potute sorgere con questo
+approccio. In particolare non tutte le istruzioni impiegano lo stesso tempo per essere eseguite,
+ma fortunatamente anche l'istruzione più lenta richiede una quantità trascurabile di tempo.
+Ciò significa che possiamo comportarci come se tutte le istruzioni richiedessero il medesimo tempo.
 
 \subsubsection{Ottimizzazioni}
 
-È stato necessario introdurre delle ottimizzazioni all'interno dell'interprete per poterlo far girare su un microcontrollore.
+È stato necessario introdurre delle ottimizzazioni all'interno
+dell'interprete per poterlo far girare su un microcontrollore.
 
-L'ottimizzazione principale è legata alla rappresentazione dello schermo in memoria. Ad alto livello lo schermo può essere visto come una matrice di 128x64 pixel monocromi. Una rappresentazione simile occuperebbe 8192 byte, dato che ciascun pixel verrebbe rappresentato da un byte.
+L'ottimizzazione principale è legata alla rappresentazione dello
+schermo in memoria. Ad alto livello lo schermo può essere visto
+come una matrice di 128x64 pixel monocromi. Una rappresentazione
+simile occuperebbe 8192 byte, dato che ciascun pixel verrebbe
+rappresentato da un byte.
 
 \begin{figure}[h!t]
     \begin{center}
@@ -406,24 +436,39 @@ L'ottimizzazione principale è legata alla rappresentazione dello schermo in mem
     \label{fig:screenopt}
 \end{figure}
 
-Purtroppo il nostro microcontrollore ha a disposizione solamente 16 KB di SRAM, di conseguenza una soluzione simile non è praticabile.
+Purtroppo il nostro microcontrollore ha a disposizione solamente 16 KB di SRAM, di conseguenza
+una soluzione simile non è praticabile.
 
-Per questo motivo abbiamo deciso di rappresentare lo schermo come un array unidimensionale di 1024 byte, dove ciascun pixel viene rappresentato da un singolo bit. In questo modo otteniamo un risparmio di spazio pari a ben l'87.5\%.
+Per questo motivo abbiamo deciso di rappresentare lo schermo come un array unidimensionale di
+1024 byte, dove ciascun pixel viene rappresentato da un singolo bit. In questo modo otteniamo
+un risparmio di spazio pari a ben l'87.5\%.
 
-Questa decisione ha aggiunto però un livello di indirezione dato che una coordinata ad alto livello sulla matrice 128x64 è mappata ad una coordinata "in memoria", dove la prima componente è l'indice del byte nell'array unidimensionale e la seconda componenete è il bit all'interno del byte. La figura [\ref{fig:screenopt}] mostra un esempio di mappatura di un pixel. Piú precisamente la funzione $F$ è definita come segue:
+Questa decisione ha aggiunto però un livello di indirezione dato che una coordinata ad alto
+livello sulla matrice 128x64 è mappata ad una coordinata "in memoria", dove la prima componente
+è l'indice del byte nell'array unidimensionale e la seconda componente è il bit all'interno
+del byte. La Figura [\ref{fig:screenopt}] mostra un esempio di mappatura di un pixel.
+Piú precisamente la funzione $F$ è definita come segue:
+
 \begin{gather*}
     F: \mathbb{N} \times \mathbb{N} \rightarrow \mathbb{N} \times \mathbb{N} \\
     F(x, y) = \left(\left\lfloor \frac{128y + x}{8} \right\rfloor, 7 - (x \bmod 8)\right) \\
     where \quad x \in [0, 127] \quad y \in [0, 63]
 \end{gather*}
 
-Un'ulteriore ottimizzazione viene resa disponibile attraverso l'API dell'interprete sotto forma di una funzione che consente al chiamante di controllare se l'array che rappresenta lo schermo è stato modificato nell'ultimo ciclo di esecuzione. Avendo notato che il numero di opcode che modificano lo schermo è molto limitato, precisamente sono solo 7 su 45, questa funzione consente di ridurre di 6.42 volte il numero di volte in cui
-lo schermo viene aggiornato.
-
+Un'ulteriore ottimizzazione viene resa disponibile attraverso l'API dell'interprete sotto forma
+di una funzione che consente al chiamante di controllare se l'array che rappresenta lo schermo è
+stato modificato nell'ultimo ciclo di esecuzione. Avendo notato che il numero di opcode che
+modificano lo schermo è molto limitato, precisamente sono solo 7 su 45, questa funzione
+consente di ridurre di 6.42 volte il numero di volte in cui lo schermo viene aggiornato.
 
 \subsubsection{Comportamenti ambigui}
 
-Gli interpreti CHIP-8 e S-CHIP hanno sviluppato molteplici comportamenti ambigui nel corso degli anni. Questi cosiddetti ``quirk'' variano in base alle piattaforme per cui è stato sviluppato l'interprete. Ad esempio gli interpreti per calcolatrici HP48 presentano un comportamento leggermente diverso durante l'esecuzione delle istruzioni di SHIFT.
+Gli interpreti CHIP-8 e S-CHIP hanno sviluppato molteplici
+comportamenti ambigui nel corso degli anni. Questi cosiddetti
+"quirk" variano in base alle piattaforme per cui è stato sviluppato
+l'interprete. Ad esempio gli interpreti per calcolatrici HP48
+presentano un comportamento leggermente diverso durante l'esecuzione
+delle istruzioni di SHIFT.
 
 Questi comportamenti ambigui si propagano fino ai programmatori
 CHIP-8 che si appoggiano a quest'ultimi e scrivono videogiochi che
@@ -437,20 +482,25 @@ maggioranza dei videogiochi reperibili in rete.
 
 \subsection{Porting su STM32}
 
-Dopo aver sviluppato l'emulatore, abbiamo sviluppato un'infrastruttura per poterlo eseguire sul microcontrollore STM32.
-Come già anticipato nella sezione \ref{sec:hardware}, l'infrastruttura si compone di un'interfaccia con lo schermo, un gestore per la scheda microSD, un gestore per il tastierino e un gestore per il beeper.
+Dopo aver terminato l'interprete abbiamo sviluppato un'infrastruttura per poterlo eseguire
+sul microcontrollore STM32.
 
-È utile ricordare che l'emulatore che abbiamo sviluppato è stato progettato per essere eseguito su qualunque architettura hardware in per cui è compilabile un file C, quindi non è stato necessario apportare modifiche all'interprete per poterlo eseguire sul microcontrollore STM32.
+Come già anticipato, l'infrastruttura si compone di un'interfaccia con lo schermo,
+un gestore per la scheda microSD, un gestore per il tastierino e un gestore per il beeper.
 
-Quindi, il processo di adattamento di questo emulatore per il microcontrollore è stato relativamente semplice e non ha richiesto modifiche significative. Tuttavia, in quanto l'emulazione avvieve su una architettura con potenza di calcolo limitata rispetto a quella di un comune calcolatore, le prestazioni e la fluidità dell'emulatore sono inferiori rispetto a quelle che avevamo usando SDL2 \cite{libsdl:about}.
+È importante ricordare che l'interprete è stato progettato per essere altamente portabile
+e indipendente dalla piattaforma su cui verrà eseguito, per questo motivo non è stato necessario
+apportare modifiche significative.
 
-Normalmente, software sviluppati per calcolatori odierni non richiedono di compilare il codice in \textit{release} per notare una sostanziale differenza dalla comune compilazione, per esempio quella in \textit{debug}. Mentre, per quanto concerne il microcontrollore, la compilazione in \textit{release} permette di ottenere un incremento di prestazioni significativo anche se in alcune situazioni è stato necessario eseguire in modalità \textit{debug} per poter usufruire delle feature del \textit{debugger}, in particolare \textit{breakpoint} e \textit{watchpoint}.
+Tuttavia, a causa della potenza limitata della scheda la fluidità del gameplay è inferiore
+rispetto alla port su SDL2 che viene eseguita su normale computer.
 
 \subsubsection{Architettura software}
 
-In Figura \ref{fig:class_diagram} è possibile vedere il ``class'' diagram riferito al porting dell'emulatore su STM32. L'architettura è composta da 5 componenti principali: \texttt{Chip8}, \texttt{Screen}, \texttt{SD}, \texttt{Keypad} e \texttt{Beeper} poi utilizzati in figura \ref{fig:sequence_diagram} per mostrare come questi interagiscono tra di loro.
-
-Il \texttt{menù}, a differenza dello studio di fattibilità, è stato rimosso dalle figure dato che tutte le operazioni che lo coinvolgono sono state spostate all'interno del \texttt{main}.
+In Figura \label{fig:class_diagram} è rappresentato il class diagram, il quale offre una panoramica
+dell'architettura del software. Una differenza da evidenziare rispetto alla proposta iniziale
+è che la classe \texttt{menù} non è più presente perché è stata integrata all'interno della
+classe \texttt{main}.
 
 \begin{figure}[h!t]
     \begin{center}
@@ -459,68 +509,116 @@ Il \texttt{menù}, a differenza dello studio di fattibilità, è stato rimosso d
         \end{tikzpicture}
     \end{center}
     \caption{
-        Class diagram dell'architettura software.
+       Class diagram.
     }
     \label{fig:class_diagram}
 \end{figure}
 
-Il flusso di esecuzione dell'emulatore è mostrato in Figura \ref{fig:sequence_diagram}, come si può notare è diviso in due parti. In particolare, la prima inizia con la lettura dei file presenti sulla scheda microSD, successivamente il giocatore seleziona il gioco da eseguire e altre informazioni come la velocità di esecuzione e la modalità di esecuzione. Successivamente, l'emulatore inizia l'esecuzione del gioco selezionato. Mentra la seconda parte mostra il flusso di esecuzione dell'emulatore durante l'esecuzione del gioco.
+Il flusso di esecuzione dell'emulatore è mostrato in Figura \ref{fig:sequence_diagram},
+per prima cosa vengono letti i nomi dei file presenti sulla scheda microSD, in seguito
+si entra nel game selection loop dove il giocatore potrà selezionare un gioco, la velocità
+dell'interprete e la piattaforma da emulare. Una volta selezionato il gioco si entrerà nel
+game loop dove inizia la fase di emulazione vera e propria.
 
 \begin{figure}[h!t]
     \begin{center}
         \input{figures/sequence_diagram.tex}
     \end{center}
     \caption{
-        Sequence diagram dell'architettura software.
+        Sequence diagram.
     }
     \label{fig:sequence_diagram}
 \end{figure}
 
 \subsubsection{Interfaccia con la scheda microSD}\label{subsubsec:sd}
 
-Inizialmente, la scheda è stata formattata in FAT32 e sono stati caricati i file dei giochi. Successivamente, la scheda è stata inserita nello slot della scheda microSD integrato nello schermo.
+% FIXME
+%
+% Potrebbe chiederci perché non leggiamo il file direttamente nella
+% struct `vm` e non abbiamo una buona risposta...quindi eviterei.
+%
+% \begin{Listing}[h!t] % [ht]
+%     \centering
+%     \setminted[c]{escapeinside=@@}
+%     \showc*[.55\textwidth]{load_game.c}
+%     \caption{Caricamento di un gioco dalla scheda microSD.}
+%     \label{load_game}
+% \end{Listing}
 
-\begin{Listing}[h!t] % [ht]
-    \centering
-    \setminted[c]{escapeinside=@@}
-    \showc*[.55\textwidth]{load_game.c}
-    \caption{Caricamento di un gioco dalla scheda microSD.}
-    \label{load_game}
-\end{Listing}
+La scheda microSD è utilizzata come memoria di massa dell'emulatore contenente i file
+binari dei videogiochi CHIP-8. È stata formattata con FAT32 e viene gestita utilizzando
+\texttt{FatFs} \cite{elm-chan:fatfs}, una libreria open source che permette di
+interfacciarsi con questa tipologia di filesystem.
 
-La scheda microSD è stata gestita tramite la libreria \texttt{FatFs} \cite{elm-chan:fatfs}, una libreria open source che consente di interfacciarsi con filesystem FAT12, FAT16 e FAT32. Questa libreria è stata sviluppata da ChaN, un \textit{mediocre\footnote{\url{http://elm-chan.org/profile_e.html}} embedded system engineer} giapponese che ha sviluppato anche la libreria \texttt{Petit FatFs} per microcontrollore con risorse limitate.
-Per la comunicazione tra il microcontrollore e la scheda microSD è stato utilizzato il protocollo \textit{Serial Periferal Interface} (SPI), in particolare il microcontrollore è stato configurato come master e la scheda microSD come slave. L'interfaccia SPI è nota per non utilizzare indirizzi ma rimane un protocollo valido per la comunicazione su bus.
+La comunicazione tra il microcontrollore e la scheda microSD avviene tramite il protocollo
+\textit{Serial Peripheral Interface} (SPI), dove il microcontrollore è configurato come
+master e la scheda microSD come slave.
 
-A livello software abbiamo letto tutti i file presenti sulla scheda microSD e li abbiamo memorizzati in un vettore. Questo per avere la possibilità di selezione e successivamente l'aperura del file selezionato.
+% FIXME
+%
+% Sebbene l'interfaccia SPI non faccia uso di
+% indirizzi rimane un protocollo valido per la comunicazione su bus.
 
-Nel listato \ref{load_game} è possibile vedere il codice che consente di caricare un gioco dalla scheda microSD. È importante notare che a riga 12 il file viene spostato nella virtual machine, precisamente viene settato il campo \texttt{RAM} della struct \texttt{Chip8} parendo da \texttt{PC\_OFFSET} che di default è settato a \texttt{0x200} come mostrato nel listato \ref{chip8_struct}. Successivamente, deallocando lo spazio utilizzato temporaneamente per memorizzare il file riusciamo a manterenere il livello di memoria utilizzata pari a quella della struttura dell'emulatore, vale a dire costante.
+% FIXME
+%
+% Abbiamo effettuato una piccola ottimizzazione decidendo di non abilitare
+% il Long File Names (LFN) sul filesystem FAT32 della scheda microSD.
+% Questo implica il fatto che tutti i file devono avere un nome di al massimo 13 byte
+% (caratteri ASCII). Cosi' facendo abbiamo risparmiato in termini complessità di computazione,
+% memoria flash e SRAM.
 
-\textbf{Ottimizzazione} \quad  Una piccola ottimizzazione, ma non da sottovalutare, è stata quella di non abilitare il Long File Names (LFN) sul filesystem FAT32 della scheda microSD. Questo implica il fatto che tutti i file devono avere un nome di al massimo 13 byte (caratteri ASCII). Cosi' facendo abbiamo risparmiato in termini complessità di computazione, memoria flash e SRAM.
-
+% TODO
 \subsubsection{Menù di selezione}
 
-La selezione del gioco avviene tramite un menù di selezione. Il menù è composto da una lista di giochi presenti sulla scheda microSD suddivisi in varie pagine e da una sezione per la selezione selezione per la velocità di esecuzione e la modalità di esecuzione. Un aspetto importante è che l'aggiunta di un gioco non comporta la necessità di modificare il codice, in quanto il menù è generato dinamicamente in base ai file presenti sulla scheda microSD. Inoltre, basterà aggiungere un file scritto in linguaggio CHIP-8 o S-CHIP e riavviare il microcontrollore per essere pronti a giocare.
+La selezione del gioco avviene tramite un menù di selezione. Il menù è composto da una lista
+di giochi presenti sulla scheda microSD suddivisi in varie pagine e da una sezione per la
+selezione selezione per la velocità di esecuzione e la modalità di esecuzione. Un aspetto
+importante è che l'aggiunta di un gioco non comporta la necessità di modificare il codice,
+in quanto il menù è generato dinamicamente in base ai file presenti sulla scheda microSD.
+Inoltre, basterà aggiungere un file scritto in linguaggio CHIP-8 o S-CHIP e riavviare il
+microcontrollore per essere pronti a giocare.
 
-Si può notare nel listato \ref{menù} che la selezione del gioco avviene tramite il tastierino, in particolare i tasti \texttt{7} e \texttt{15} permettono di navigare tra le pagine. Il tasto \texttt{0} permette di selezionare la modalità di esecuzione ciclando tra le 3 modalità disponibili: \texttt{CHIP8}, \texttt{SCHIP1.0} e \texttt{SCHIP1.1}; invece, il tasto \texttt{8} permette di selezionare la velocità di esecuzione ciclando tra le 4 preimpostate \texttt{600}, \texttt{1200}, \texttt{1800} e \texttt{2400}. Gli altri tasti sono riservati per avviare il gioco selezionato.
+Si può notare nel listato \ref{menù} che la selezione del gioco avviene tramite il tastierino,
+in particolare i tasti \texttt{7} e \texttt{15} permettono di navigare tra le pagine. Il tasto
+\texttt{0} permette di selezionare la modalità di esecuzione iterando tra le 3 modalità
+disponibili: \texttt{CHIP8}, \texttt{SCHIP1.0} e \texttt{SCHIP1.1}; invece, il tasto \texttt{8}
+permette di selezionare la velocità di esecuzione iterando tra le 4 preimpostate
+\texttt{600}, \texttt{1200}, \texttt{1800} e \texttt{2400}. Gli altri tasti sono riservati per
+avviare il gioco selezionato.
 
-\begin{Listing}[h!t] % [ht]
-    \centering
-    \setminted[c]{escapeinside=@@}
-    \showc*[.92\textwidth] {menu.c}
-    \caption{Menù di selezione.}
-    \label{menù}
-\end{Listing}
+Per ovviare al fatto che cambiando schermata potrebbero rimanere degli artefatti grafici, abbiamo
+deciso di pulire lo schermo ad ogni cambio di schermata. Questo è stato possibile grazie alla
+funzione \texttt{FillScreen}, la quale utilizza metodi dell'\textit{Hardware Abstract Layer} (HAL)
+per pulire lo schermo producendo anche un effetto di transizione tra una scheda e l'altra.
 
-Per ovviare al fatto che cambiando schermata potrebbero rimanere degli artefatti grafici, abbiamo deciso di pulire lo schermo ad ogni cambio di schermata. Questo è stato possibile grazie alla funzione \texttt{FillScreen}, la quale utilzza metodi dell'\textit{Hardware Abstract Layer} (HAL) per pulire lo schermo producendo anche un effetto di transizione tra una scheda e l'altra.
-
+% TODO
 \subsubsection{Funzionamento del keypad}\label{subsubsec:keypad}
 
-Inizialmente il keypad è stato gestito tramite polling, ovvero il microcontrollore controllava ad ogni aggiornamento dello schermo (60 \texttt{FPS} $\approx$ 16.666 ms) lo stato dei pin di riga e di colonna per capire quale tasto fosse stato premuto. Questo approccio è stato scartato in favore dell'approccio basato su interrupt, in quanto il polling consumava molte risorse del microcontrollore e non garantiva un framerate stabile in quanto in $\sim$16 ms non riusciva a garantire la lettura di tutti i pin ed eseguire le restanti operazioni.
+Inizialmente il keypad è stato gestito tramite polling, ovvero il microcontrollore controllava
+ad ogni aggiornamento dello schermo (60 \texttt{FPS} $\approx$ 16.666 ms) lo stato dei pin di riga
+e di colonna per capire quale tasto fosse stato premuto. Questo approccio è stato scartato in
+favore dell'approccio basato su interrupt, in quanto il polling consumava molte risorse del
+microcontrollore e non garantiva un framerate stabile in quanto in $\sim$16 ms non riusciva a
+garantire la lettura di tutti i pin ed eseguire le restanti operazioni.
 
-La procedura di gestione degli interrupt su microcontrollori STM32 è standard. Bisogna implementare una funzione che gestisce l'interrupt e bisogna configurare il pin GPIO come sorgente di interrupt. Nel nostra situzione, come accennato in sezione \ref{subsubsec:collegamenti}, i pin di riga sono stati impostati in modalità \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge) e i pin di colonna in modalità \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per permettere l'invio dell'interrupt alla pressione di un tasto.
+La procedura di gestione degli interrupt su microcontrollori STM32 è standard. Bisogna implementare
+una funzione che gestisce l'interrupt e bisogna configurare il pin GPIO come sorgente di interrupt.
+Nel nostra situazione, come accennato in sezione \ref{subsubsec:collegamenti}, i pin di riga sono
+stati impostati in modalità \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge) e i pin di
+colonna in modalità \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per permettere l'invio
+dell'interrupt alla pressione di un tasto.
 
-Successivamente, viene capito quale tasto è stato premuto, leggendo il valore dei pin di riga e di colonna. Per fare ciò, i pin di riga sono stati impostati in modalità \texttt{GPIO\_MODE\_INPUT}. Come si può vedere nel listato \ref{keypad} a riga 1, nella routine di interrupt viene abilitato il pin di output della prima colonna e in seguito per ogni riga viene letto il valore del pin di input per conoscere la seconda coordinata del tasto premuto, e in caso sia premuto viene salvato nella struttura dati apposita nella virtual machine. Questa operazione viene ripetuta per ognuna delle quattro colonne.
-Al termine della routine di interrupt ({\setmintedinline[c]{style=friendly}\inlinec{void Interrupt_handle_keypad(uint16_t GPIO_Pin)}}), i pin di riga vengono re-impostati in modalità \texttt{GPIO\_MODE\_IT\_RISING} per permettere l'invio dell'interrupt alla pressione di un nuovo tasto.
+Successivamente, viene capito quale tasto è stato premuto, leggendo il valore dei pin
+di riga e di colonna. Per fare ciò, i pin di riga sono stati impostati in modalità
+\texttt{GPIO\_MODE\_INPUT}. Come si può vedere nel listato \ref{keypad} a riga 1,
+nella routine di interrupt viene abilitato il pin di output della prima colonna e in seguito
+per ogni riga viene letto il valore del pin di input per conoscere la seconda coordinata
+del tasto premuto, e in caso sia premuto viene salvato nella struttura dati apposita
+nella macchina virtuale. Questa operazione viene ripetuta per ognuna delle quattro colonne.
+Al termine della routine di interrupt
+({\setmintedinline[c]{style=friendly}\inlinec{void Interrupt_handle_keypad(uint16_t GPIO_Pin)}}),
+i pin di riga vengono re-impostati in modalità \texttt{GPIO\_MODE\_IT\_RISING} per permettere
+l'invio dell'interrupt alla pressione di un nuovo tasto.
 
 \begin{Listing}[h!t] % [ht]
     \centering
@@ -530,18 +628,48 @@ Al termine della routine di interrupt ({\setmintedinline[c]{style=friendly}\inli
     \label{keypad}
 \end{Listing}
 
+% TODO
 \subsubsection{Interfaccia con lo schermo}
 
-Il driver per display a cristalli liquidi \texttt{ILI9341} consente la comunicazione tramite due diverse interfacce: SPI (spiegata in sezione \ref{subsubsec:sd}) e 8 bit parallela. Mentre l'interfaccia SPI richiede meno pin, è più lenta a causa del protocollo seriale. Al contrario, l'interfaccia parallela è più veloce ma richiede più pin. Poiché dobbiamo visualizzare i videogiochi sullo schermo e aggiornare l'immagine a circa 60 volte al secondo, abbiamo optato per l'interfaccia parallela.
+Il driver per display a cristalli liquidi \texttt{ILI9341} consente la comunicazione tramite due
+diverse interfacce: SPI (spiegata in sezione \ref{subsubsec:sd}) e 8 bit parallela. Mentre
+l'interfaccia SPI richiede meno pin, è più lenta a causa del protocollo seriale. Al contrario,
+l'interfaccia parallela è più veloce ma richiede più pin. Poiché dobbiamo visualizzare
+i videogiochi sullo schermo e aggiornare l'immagine a circa 60 volte al secondo, abbiamo
+optato per l'interfaccia parallela.
 
-L'interfaccia parallela è un metodo di comunicazione che coinvolge l'invio simultaneo di più bit di dati attraverso una serie di linee di comunicazione parallele. Nel contesto del display LCD ILI9341, l'interfaccia parallela ad 8 bit coinvolge l'uso di otto linee di dati per trasmettere informazioni al display. Oltre alle linee di dati, ci possono essere anche altre linee di controllo, come quelle per il segnale di sincronizzazione e i segnali di controllo. Quando si utilizza l'interfaccia parallela, i dati vengono inviati al display in gruppi di 8 bit simultaneamente, consentendo un trasferimento più rapido rispetto all'interfaccia SPI, che invia i dati bit per bit in sequenza.
+L'interfaccia parallela è un metodo di comunicazione che coinvolge l'invio simultaneo di più
+bit di dati attraverso una serie di linee di comunicazione parallele. Nel contesto del display
+LCD ILI9341, l'interfaccia parallela ad 8 bit coinvolge l'uso di otto linee di dati per
+trasmettere informazioni al display. Oltre alle linee di dati, ci possono essere anche altre
+linee di controllo, come quelle per il segnale di sincronizzazione e i segnali di controllo.
+Quando si utilizza l'interfaccia parallela, i dati vengono inviati al display in gruppi di 8 bit
+simultaneamente, consentendo un trasferimento più rapido rispetto all'interfaccia SPI,
+che invia i dati bit per bit in sequenza.
 
-Per l'nizializzazione abbiamo utilizzato la funzione {\setmintedinline[c]{style=friendly}\inlinec{int Init(struct ILI9341_t *ili, struct ILI9341_Pin_t {D7, D6, D5, D4, D3, D2, D1, D0, RST, CS, RS, WR, RD})}}, prende in input un puntatore alla struttura dati relativa alla scheda e i pin utilizzati per la comunicazione parallela. Gli ultimi cinque pin elencati nella firma della funzione sono stati inizializzati in modalità \texttt{GPIO\_MODE\_OUTPUT\_PP} grazie alle funzioni della HAL.
+Per l'inizializzazione abbiamo utilizzato la funzione
+{\setmintedinline[c]{style=friendly}\inlinec{int Init(struct ILI9341_t *ili, struct ILI9341_Pin_t {D7, D6, D5, D4, D3, D2, D1, D0, RST, CS, RS, WR, RD})}},
+prende in input un puntatore alla struttura dati relativa alla scheda e i pin utilizzati per la
+comunicazione parallela. Gli ultimi cinque pin elencati nella firma della funzione sono stati
+inizializzati in modalità \texttt{GPIO\_MODE\_OUTPUT\_PP} grazie alle funzioni della HAL.
 
-Quindi, prima di inviare la sequenza di inizializzazione al display, è necessario impostare uno stato iniziale per la scheda. Questo stato prevede che il pin \texttt{LCD\_CS} sia impostato su LOW, mentre i pin \texttt{LCD\_WR} e \texttt{LCD\_RD} devono essere disabilitati. Il pin \texttt{LCD\_RST} è utilizzato per resettare lo stato interno del display quando è attivo, conosciuto anche come \textit{hardware reset}. Per garantire un avvio sicuro, attiviamo e disattiviamo questo pin per resettare la scheda a uno stato noto. Successivamente, il pin \texttt{LCD\_RST} rimarrà disabilitato per tutta l'esecuzione.
+Quindi, prima di inviare la sequenza di inizializzazione al display, è necessario impostare
+uno stato iniziale per la scheda. Questo stato prevede che il pin \texttt{LCD\_CS} sia
+impostato su LOW, mentre i pin \texttt{LCD\_WR} e \texttt{LCD\_RD} devono essere disabilitati.
+Il pin \texttt{LCD\_RST} è utilizzato per resettare lo stato interno del display quando è attivo,
+conosciuto anche come \textit{hardware reset}. Per garantire un avvio sicuro, attiviamo e
+disattiviamo questo pin per resettare la scheda a uno stato noto. Successivamente,
+il pin \texttt{LCD\_RST} rimarrà disabilitato per tutta l'esecuzione.
 
 Una fase molto importante è riservata all'invio della \textit{init sequence}.
-Di base lo schermo è in modalità \textit{sleep}, quindi dobbiamo mandare una sequenza di comandi per risvegliarlo. Questa sequenza di comandi è specifica per il display \texttt{ILI9341} ed sono spiegati dettagliatamente nel datasheet \cite{ili9341}. Questi comandi sono stati inviati al display tramite la funzione {\setmintedinline[c]{style=friendly}\inlinec{void WriteCommand(struct ILI9341_t *ili, uint8_t cmd)}}. Oltre al comando di \textit{wake up}, è stato eseguito il \textit{reset software}, l'impostazione del \textit{power control} e la quantità di bit per il colore del pixel (16 bit). Tralasciando qualche comando, in fine abbiamo iniviato il comando di \textit{display on}.
+Di base lo schermo è in modalità \textit{sleep}, quindi dobbiamo mandare una sequenza di
+comandi per risvegliarlo. Questa sequenza di comandi è specifica per il display \texttt{ILI9341}
+ed sono spiegati dettagliatamente nel datasheet \cite{ili9341}. Questi comandi sono stati
+inviati al display tramite la funzione
+{\setmintedinline[c]{style=friendly}\inlinec{void WriteCommand(struct ILI9341_t *ili, uint8_t cmd)}}.
+Oltre al comando di \textit{wake up}, è stato eseguito il \textit{reset software},
+l'impostazione del \textit{power control} e la quantità di bit per il colore del pixel (16 bit).
+Tralasciando qualche comando, in fine abbiamo iniviato il comando di \textit{display on}.
 
 \begin{Listing}[h!t] % [ht]
     \centering
@@ -551,12 +679,25 @@ Di base lo schermo è in modalità \textit{sleep}, quindi dobbiamo mandare una s
     \label{ili9341_printscreen}
 \end{Listing}
 
-Nel file relativo allo schermo, abbiamo implementato diverse funzioni per gestirlo. In particolare, la funzione nel listato \ref{ili9341_printscreen} è stata la prima implementazione capace di stampare lo schermo. Successivamente, abbiamo basato le altre implementazioni su quest'ultima aggiungendo delle \textit{features}.
-Gli elementi comuni a tutte le funzioni di stampa sono la chiamata della funzione {\setmintedinline[c]{style=friendly}\inlinec{SetDrawingArea}} che definisce i vertici del rettangolo da disegnare e la chiamata della funzione \inlinec{WriteCommand} con argomento {\setmintedinline[c]{style=friendly}\inlinec{CMD_MEMORY_WRITE}} per indicare al display che stiamo per inviare dei dati.
+Nel file relativo allo schermo, abbiamo implementato diverse funzioni per gestirlo.
+In particolare, la funzione nel listato \ref{ili9341_printscreen} è stata la prima
+implementazione capace di stampare lo schermo. Successivamente, abbiamo basato le altre
+implementazioni su quest'ultima aggiungendo delle \textit{features}.
+Gli elementi comuni a tutte le funzioni di stampa sono la chiamata della funzione
+{\setmintedinline[c]{style=friendly}\inlinec{SetDrawingArea}} che definisce i vertici
+del rettangolo da disegnare e la chiamata della funzione \inlinec{WriteCommand} con argomento
+{\setmintedinline[c]{style=friendly}\inlinec{CMD_MEMORY_WRITE}} per indicare al display
+che stiamo per inviare dei dati.
 
-Tra le necessità che avevamo dopo questa implementazione, c'era quella di poter stampare un'immagine più grande. In questi termini abbiamo implementato una versione migliorata, la quale accetta in input anche un parametro di \textit{scale}.
+Tra le necessità che avevamo dopo questa implementazione, c'era quella di poter stampare
+un'immagine più grande. In questi termini abbiamo implementato una versione migliorata,
+la quale accetta in input anche un parametro di \textit{scale}.
 
-Inoltre, è importante notare che entrambe queste implementazioni utilizzato la HAL, questo generava un overhead nelle richeste rallentando l'applicativo. Abbiamo risolto questa problematica implementato le rispettive due funzioni in \textit{bare metal} le quali sfuttano come base le funzioni \texttt{PIN\_LOW\_METAL} e \texttt{PIN\_HIGH\_METAL} visibili nel listato \ref{bare_metal_pins}.
+Inoltre, è importante notare che entrambe queste implementazioni utilizzato la HAL, questo
+generava un overhead nelle richieste rallentando l'applicativo. Abbiamo risolto questa
+problematica implementato le rispettive due funzioni in \textit{bare metal} le quali
+sfruttano come base le funzioni \texttt{PIN\_LOW\_METAL} e \texttt{PIN\_HIGH\_METAL}
+visibili nel listato \ref{bare_metal_pins}.
 
 \begin{Listing}
     \centering
@@ -569,11 +710,22 @@ Inoltre, è importante notare che entrambe queste implementazioni utilizzato la 
     \label{bare_metal_pins}
 \end{Listing}
 
-Entrambe queste funzioni impostano il pin GPIO che viene passato come argomento ad uno stato \texttt{LOW} o \texttt{HIGH} rispettivamente.  Eseguiamo questa azione scrivendo nel registro BSRR (come mostrato nel capitolo 9.4.7 in \cite{STM32F334xx}) (Bit Set/Reset Register). Nel caso della funzione \texttt{HIGH}, quando si scrive un 1 in un bit del registro BSRR, il corrispondente pin viene impostato su \textit{high}, mentre se si scrive un 0, il pin viene lasciato invariato. Nel caso di quella \texttt{LOW}, si accede sempre al registro BSRR, ma questa volta si utilizzano i bit superiori (da 16 a 31) per impostare il pin a \textit{low}.
+Entrambe queste funzioni impostano il pin GPIO che viene passato come argomento ad
+uno stato \texttt{LOW} o \texttt{HIGH} rispettivamente.  Eseguiamo questa azione scrivendo
+nel registro BSRR (come mostrato nel capitolo 9.4.7 in \cite{STM32F334xx}) (Bit Set/Reset Register).
+Nel caso della funzione \texttt{HIGH}, quando si scrive un 1 in un bit del registro BSRR,
+il corrispondente pin viene impostato su \textit{high}, mentre se si scrive un 0, il pin viene
+lasciato invariato. Nel caso di quella \texttt{LOW}, si accede sempre al registro BSRR,
+ma questa volta si utilizzano i bit superiori (da 16 a 31) per impostare il pin a \textit{low}.
 
+% TODO
 \subsubsection{Rendering del font}
 
-È noto che non esiste una funzione come la \texttt{printf} su microcontrollori, e di conseguenza neanche per stampare una stringa sullo schermo \texttt{ili9341} in quanto non vi è la conoscenza ne di uno \textit{standard output} ne di un font. Quindi, è stato necessario trovare un font, e di preciso abbiamo utilizzato un font che rappresentasse ogni glifo (simbolo o lettera) come bitmap quindi in formato matriciale $8 \times 10$ pixel descrivendoli come 10 numeri a 8 bits.
+È noto che non esiste una funzione come la \texttt{printf} su microcontrollori, e di conseguenza
+neanche per stampare una stringa sullo schermo \texttt{ili9341} in quanto non vi è la conoscenza
+ne di uno \textit{standard output} ne di un font. Quindi, è stato necessario trovare un font,
+e di preciso abbiamo utilizzato un font che rappresentasse ogni glifo (simbolo o lettera) come
+bitmap quindi in formato matriciale $8 \times 10$ pixel descrivendoli come 10 numeri a 8 bits.
 
 \begin{figure}[h!t]
     \begin{center}
@@ -583,17 +735,41 @@ Entrambe queste funzioni impostano il pin GPIO che viene passato come argomento 
     \label{fig:matrix_font}
 \end{figure}
 
-In Figura \ref{fig:matrix_font} è possibile vedere come viene rappresentata graficamente la matrice che rappresenta un carattere. Lato implementativo ogni riga viene tratotta in un \texttt{uint8\_t} nel quale i bits settati a $1$ sono quelli che sono quelli colorati di nero, per esempio la prima riga è tradotta in $0b00111000 \rightarrow 0d56$ il quale sarà il primo componente del vettore che rappresenta il carattere $1$. Questa bitmap è passata alla funzione {\setmintedinline[c]{style=friendly}\inlinec{void WriteChar(struct ILI9341_t *ili, int X, int Y, int FW, int FH, unsigned char (*font)[FH])}} sottoforma di vettore (\texttt{font}) lungo 10 di \texttt{unsigned char}.
+In Figura \ref{fig:matrix_font} è possibile vedere come viene rappresentata graficamente
+la matrice che rappresenta un carattere. Lato implementativo ogni riga viene tradotta in
+un \texttt{uint8\_t} nel quale i bits settati a $1$ sono quelli che sono quelli colorati di nero,
+per esempio la prima riga è tradotta in $0b00111000 \rightarrow 0d56$ il quale sarà il primo
+componente del vettore che rappresenta il carattere $1$. Questa bitmap è passata alla
+funzione
+{\setmintedinline[c]{style=friendly}\inlinec{void WriteChar(struct ILI9341_t *ili, int X, int Y, int FW, int FH, unsigned char (*font)[FH])}}
+sotto forma di vettore (\texttt{font}) lungo 10 di \texttt{unsigned char}.
 
-Inoltre, abbiamo implementato delle funzioni ausiliarie. In particolare, la funzione {\setmintedinline[c]{style=friendly}\inlinec{void WriteString(struct ILI9341_t *ili, int X, int Y, int FW, int FH, int N_GLYPHS, unsigned char (*font)[N_GLYPHS][FH], char *str)}} che consente di stampare una stringa sullo schermo utilizzando la funzione {\setmintedinline[c]{style=friendly}\inlinec{WriteChar}}. Questa funzione accetta in input la posizione in cui stampare la stringa, la dimensione del font, il numero di glifi presenti nel font e la stringa da stampare.
+Inoltre, abbiamo implementato delle funzioni ausiliarie. In particolare, la funzione
+{\setmintedinline[c]{style=friendly}\inlinec{void WriteString(struct ILI9341_t *ili, int X, int Y, int FW, int FH, int N_GLYPHS, unsigned char (*font)[N_GLYPHS][FH], char *str)}}
+che consente di stampare una stringa sullo schermo utilizzando la funzione
+{\setmintedinline[c]{style=friendly}\inlinec{WriteChar}}. Questa funzione accetta in input
+la posizione in cui stampare la stringa, la dimensione del font, il numero di glifi presenti
+nel font e la stringa da stampare.
 
-Abbiamo sfruttato queste implementazioni per stampare il menù di selezione, il quale è composto da una lista di giochi presenti sulla scheda microSD suddivisi in varie pagine e da una sezione per la selezione selezione per la velocità di esecuzione e la modalità di esecuzione. La funzione accetta in input un array di stringhe, un array di modalità di esecuzione e un array di velocità di esecuzione, e le restanti informazioni che servono a {\setmintedinline[c]{style=friendly}\inlinec{WriteString}}.
+Abbiamo sfruttato queste implementazioni per stampare il menù di selezione, il quale
+è composto da una lista di giochi presenti sulla scheda microSD suddivisi in varie pagine
+e da una sezione per la selezione selezione per la velocità di esecuzione e la modalità
+di esecuzione. La funzione accetta in input un array di stringhe, un array di modalità di
+esecuzione e un array di velocità di esecuzione, e le restanti informazioni che servono
+a {\setmintedinline[c]{style=friendly}\inlinec{WriteString}}.
 
 \section{Assemblaggio}
 
-Una volta completato il software, come già anticipato nella proposta di progetto, abbiamo deciso di assemblare le componenti hardware in un \textit{case} in modo da nascondere i cavi e le componenti scoperte, lasciando accessibili le parti con cui il giocatore deve interagire.
+Una volta terminato lo sviluppo del software abbiamo deciso di inserire i componenti hardware
+all'interno di un guscio protettivo, in modo da nascondere il cablaggio e i vari pin scoperti,
+lasciando accessibili solamente le parti con cui il giocatore interagisce direttamente.
 
-Per la realizzazione, abbiamo utilizato una base di supporto polifunzionale\footnote{\url{https://www.gewiss.com/al/it/prodotti/product.1000002.1000090.GW42002}} di dimensione $200 \times 150 \times 60$ correttamente rifinita per consentire la fuoriuscita del \textit{display} e del \textit{keypad} nella parte superiore e laterlamente sono stati applicati dei fori di dimensione variabile per permettere al grazioso suono del \textit{beeper} di raggiungere le orecchie dell'ascoltatore e avere un interruttore per l'accsione e spegnimento della scheda.
+Il guscio protettivo è stato realizzato con una base di supporto
+polifunzionale\footnote{\url{https://www.gewiss.com/al/it/prodotti/product.1000002.1000090.GW42002}}
+a cui sono state apportate le modifiche appropriate per essere in grado di "montare" correttamente
+il display e il tastierino. Inoltre sono stati effettuati due fori sulla scocca per poter sentire
+più facilmente il beeper e per poter accedere ad un interruttore per l'accensione e spegnimento
+della scheda.
 
 \begin{figure}[h!t]
     \begin{center}
@@ -606,58 +782,65 @@ Per la realizzazione, abbiamo utilizato una base di supporto polifunzionale\foot
     \label{fig:assemblaggio}
 \end{figure}
 
-Internamente alla base di supporto, i collegamenti sono rimasti quelli descritti in sezione \ref{subsubsec:collegamenti} visibili in figura \ref{fig:schematic}. Ma abbiamo aggiunto delle batterie esterne come alimentazione per la scheda evitando di doverla collegare ad una presa di corrente. Come si pu\'o notare in figura \ref{fig:assemblaggio} lo schermo è esterno alla scatola per permettere l'incastro con la scheda attraverso i pins dello \textit{shield} in modo da non utilizzare colla o nastri adesivi. Per il keypad abbiamo utilizzato un nastro biadesivo per attaccarlo alla base di supporto, in quanto le lettere del keypad non rispecchiavano le originali del Cosmac Vip\footnote{https://en.wikipedia.org/wiki/COSMAC\_VIP} abbiamo deciso di ricoprire i tasti incorretti con un adesivo indicante la lettera originale.
+I collegamenti sono rimasti identici a quelli descritti nella sezione
+\ref{subsubsec:collegamenti}, è stata però aggiunta una batteria esterna.
 
-Il risultato finale dell'assemblaggio punta ad essere a scopo dimostrativo. Se si puntasse ad un prodotto commerciale, sarebbe necessaria una PCB ad-hoc al posto della \textit{development board} di STM32 per ridurre la dimensione del prodotto, eventualmente un \textit{case 3D printed} più piccolo per aumentarne la portabilità e in caso di miglior feedback tattile un \textit{keypad} di qualità superiore.
+Infine, come ultimo tocco puramente estetico, abbiamo applicato degli adesivi al tastierino
+per ricoprire i tasti che non corrispondevano a quelli originali del COSMAC VIP.
 
-\section{Analisi del consumo energetico}
+Consideriamo il risultato finale accettabile come prototipo iniziale, ma se si volesse
+commercializzare un prodotto simile sarebbe imperativo utilizzare una PCB ad hoc più compatta,
+un guscio su misura e un tastierino di qualità superiore.
 
-La scheda \texttt{STM32F334R8T6} permette di essere alimentata tramite un cavo USB o una batteria esterna. Per motivi di portabilità, nel nostro caso abbiamo deciso di utilizzare 4 batterie AA da 1.5V per un totale di 6V. Non è stato un lavoro particolarmente difficile, in quanto la scheda \texttt{STM32F334R8T6} ha un regolatore di tensione integrato che permette di essere alimentata da 3.3V a 5V, quindi abbiamo collegato le batterie in serie e abbiamo collegato il positivo e il negativo al pin \texttt{VDD} e \texttt{GND} della scheda.
+\section{Analisi del consumo energetico} % FIXME
 
-Per avere una stima di quanto tempo il nostro progetto potesse rimanere accesso, abbiamo deciso di misurare il consumo energetico. Per fare ci\'o abbiamo il software fornito da ST Microelectronics chiamato \textit{STM32CubeIDE} il quale permette di misurare il consumo energetico della scheda, che si aggira intorno ai 30 mAh. Il consumo energentico del display è noto e consuma all'incirca 50 mAh per la retroilluminazione e 10 mAh per il display (TFT). Quindi il nostro progetto consuma all'incirca 90 mAh, quindi con 4 batterie AA da 1.5V, che hanno una capacità di 2500 mAh, il nostro progetto può rimanere acceso per circa 120 ore.
+La scheda \texttt{STM32F334R8T6} può essere alimentata sia tramite un cavo USB che mediante
+una batteria esterna; per rendere l'emulatore portatile abbiamo scelto quest'ultima
+soluzione utilizzando 4 batterie AA da 1.5V ciascuna. Abbiamo collegato le batterie in
+serie e connesso il polo positivo al pin VDD e il polo negativo al pin GND della scheda.
 
-Per calcolare il consumo energetico, abbiamo utilizzato la formula
+% FIXME
+%
+% Per ottenere una stima dell'autonomia dell'emulatore, abbiamo analizzato il suo consumo
+% energetico utilizzando il software STM32CubeIDE. Il consumo energetico della scheda è di
+% circa 30 mAh, mentre quello del display si aggira intorno ai 50 mAh per la retroilluminazione
+% e 10 mAh per il display TFT. Quindi, complessivamente, l'emulatore consuma circa 90 mAh.
+
+Per ottenere una stima dell'autonomia dell'emulatore, abbiamo analizzato il suo consumo
+energetico utilizzando il software STM32CubeIDE. Il consumo energetico della scheda è di
+circa 30 mAh, mentre quello del display retroilluminato si aggira intorno ai 90 mAh.
+Quindi, complessivamente, l'emulatore consuma all'incirca 120 mAh.
+
+Assumendo che le batterie abbiano una capacità di 2500 mAh, ci aspettiamo che
+l'emulatore possa rimanere acceso per circa 20 ore.
+
 \begin{equation*}
     \begin{aligned}
-        \textmd{time} \ (\texttt{h}) & = \frac{\textmd{capacity} \ (\texttt{mA})}{\textmd{consumption} \ (\texttt{mAh})}\\
-                                     & = \frac{4 * 2700 \ \texttt{mA}}{90 \ \texttt{mAh}}\\
-                                     & = 120 \ \texttt{h}
+        \textmd{tempo} & = \frac{\textmd{capacità}}{\textmd{consumo}} & = \frac{2500}{120} & = 20
     \end{aligned}
 \end{equation*}
 
-\section{Considerazioni finali e sviluppi futuri}
+\section{Considerazioni finali}
 
-Il progetto ha avuto successo, in quanto abbiamo raggiunto tutti gli obiettivi prefissati. Abbiamo sviluppato un emulatore di CHIP-8 e S-CHIP, lo abbiamo portato su un microcontrollore STM32 e abbiamo assemblato il tutto in un case. Abbiamo anche misurato il consumo energetico del progetto e abbiamo stimato che può rimanere acceso per circa 35 ore.
+Siamo riusciti a realizzare un emulatore CHIP-8 e S-CHIP in grado di funzionare su un
+microcontrollore STM32 raggiungendo così l'obiettivo che ci eravamo prefissati.
 
-Il progetto ha avuto un impatto positivo sul nostro apprendimento, in quanto abbiamo imparato a sviluppare un emulatore e a lavorare con un microcontrollore, con tutte le sfide che questo comporta.
+Alcuni videogiochi purtroppo non hanno un gameplay fluido a causa della potenza
+limitata della scheda, nonostante questo Tetris, Blitz, Tic-tac-toe e altri giochi
+analoghi hanno prestazioni più che accettabili.
 
-Per quanto riguarda i tempi di realizzazione, abbiamo rispettato i tempi previsti. Come si pu\'o vedere nella tabella sottostante, i tempi previsti e i tempi effettivi sono gli stessi ma sono stati distrubuiti in modo diverso.
-I tempi stimati per l'ottimizzazione del software sono stati ridotti, in quanto abbiamo credevamo che sarebbe stato un lavoro più impegnativo. Mentre, i tempi stimati per la realizzazione del driver video sono stati aumentati, in quanto avevamo visto che usando la HAL era troppo lento e quindi abbiamo dovuto implemetare le funzioni bare metal come spiiegato in sezione \ref{subsubsec:sd}.
+Infine, per quanto riguarda gli sviluppi futuri abbiamo ipotizzato che si potrebbe ulteriormente
+ottimizzare il software modificando l'interprete in modo tale da interagire direttamente con
+il display, perdendo però così la sua portabilità.
 
-\begin{center}
-    \begin{table}[ht]
-        \centering
-        \begin{tabular}{|l|l|l|}
-            \hline
-            \textbf{Nome}                         & \textbf{Tempo di lavoro Stimato} & \textbf{Tempo di lavoro Effettivo} \\ \hline
-            Macchina virtuale                     & 3 settimane                      & 3 settimane                        \\ \hline
-            Driver video                          & 1 settimana                      & 2 settimane                        \\ \hline
-            Driver microSD                        & 3 giorni                         & 3 giorni                           \\ \hline
-            Driver keypad                         & 1 giorno                         & 3 giorni                           \\ \hline
-            Driver audio                          & 5 giorni                         & 2 giorni                           \\ \hline
-            Menù di selezione                     & 5 giorni                         & 1 settimana                        \\ \hline
-            Ottimizzazione software               & 2 settimane                      & 1 settimane                        \\ \hline
-            \multicolumn{1}{|r|}{\textbf{Totale}} & 2 mesi                           & 2 mesi                             \\ \hline
-        \end{tabular}
-        \caption{
-            Tempi previsti ed effettivi per la realizzazione dei componenti software
-        }
-    \end{table}
-\end{center}
-
-Come sviluppi futuri, abbiamo deciso di sviluppare un \textit{assembler} che permette dato un file scritto in linguaggio CHIP-8 o S-CHIP di generare un file binario che può essere eseguito dall'emulatore. Inoltre, abbiamo deciso di sviluppare un \textit{disassembler} che permette di convertire un file binario in un file scritto in linguaggio CHIP-8 o S-CHIP. Questi due strumenti permetterebbero di semplificare la creazione di nuovi giochi per CHIP-8 e S-CHIP. E li renderemo disponibili all'interno dell'organizzazione GitHub\footnote{\url{https://github.com/CHIP-8-Org}} come parte del nostro progetto open-source.
-
-Come miglioramento, abbiamo deciso di implementare un'ottimizzazione che permette di aggiornare solo la sprite che è stata modificata. Questo permetterebbe di ridurre il numero di volte in cui lo schermo viene aggiornato e di conseguenza ridurre il consumo energetico. Sarà un lavoro impegnativo, in quanto richiede di modificare l'emulatore e di implementare un'API che permette di ricevere le coordinate della sprite che è stata modificata.
+% TODO - sistemarlo e spostarlo
+%
+% Abbiamo ipotizzato una possibile ottimizzazione che permetta di aggiornare solo la sprite
+% effettivamente modificata rispecchiando così il modo in cui vengono gestite le istruzioni
+% che modificano lo stato dello "schermo" all'interno dell'interprete. Purtroppo però questo
+% non è possibile perché, soprattutto quando l'emulatore è settato ad una frequenza alta,
+% è possibile che più istruzioni di disegno vengano eseguite durante un ciclo di emulazione,
+% per questo motivo siamo forzati a renderizzare lo "schermo" dell'interprete nella sua interezza.
 
 \addcontentsline{toc}{section}{Riferimenti bibliografici}
 \bibliographystyle{plain}
