@@ -14,7 +14,7 @@
 \usepackage{caption, subcaption}
 \usepackage{tikz, circuitikz}
 \usepackage{pgf-umlcd, pgf-umlsd}
-\usepackage[italian]{babel}
+\usepackage[italian]{babel} % FIXME
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[normalem]{ulem}
@@ -443,30 +443,23 @@ Per questo motivo abbiamo deciso di rappresentare lo schermo come un array unidi
 1024 byte, dove ciascun pixel viene rappresentato da un singolo bit. In questo modo otteniamo
 un risparmio di spazio pari a ben l'87.5\%.
 
-Questa decisione ha aggiunto però un livello di indirezione dato che una coordinata ad alto
-livello sulla matrice 128x64 è mappata ad una coordinata "in memoria", dove la prima componente
-è l'indice del byte nell'array unidimensionale e la seconda componente è il bit all'interno
-del byte. La Figura [\ref{fig:screenopt}] mostra un esempio di mappatura di un pixel.
-Piú precisamente la funzione $F$ è definita come segue:
+Questa decisione ha aggiunto però un livello di indirezione dato
+che una coordinata ad alto livello sulla matrice 128x64 deve essere
+mappata ad una coordinata "in memoria".
 
-\begin{gather*}
-    F: \mathbb{N} \times \mathbb{N} \rightarrow \mathbb{N} \times \mathbb{N} \\
-    F(x, y) = \left(\left\lfloor \frac{128y + x}{8} \right\rfloor, 7 - (x \bmod 8)\right) \\
-    where \quad x \in [0, 127] \quad y \in [0, 63]
-\end{gather*}
-
-Un'ulteriore ottimizzazione viene resa disponibile attraverso l'API dell'interprete sotto forma
-di una funzione che consente al chiamante di controllare se l'array che rappresenta lo schermo è
-stato modificato nell'ultimo ciclo di esecuzione. Avendo notato che il numero di opcode che
-modificano lo schermo è molto limitato, precisamente sono solo 7 su 45, questa funzione
-consente di ridurre di 6.42 volte il numero di volte in cui lo schermo viene aggiornato.
+Un'ulteriore ottimizzazione viene resa disponibile attraverso l'API
+dell'interprete sotto forma di una funzione che consente al chiamante
+di controllare se l'array che rappresenta lo schermo è stato
+modificato nell'ultimo ciclo di esecuzione. In questo modo la grafica
+viene renderizzata dal chiamante solo quando è effettivamente
+necessario.
 
 \subsubsection{Comportamenti ambigui}
 
 Gli interpreti CHIP-8 e S-CHIP hanno sviluppato molteplici
 comportamenti ambigui nel corso degli anni. Questi cosiddetti
 "quirk" variano in base alle piattaforme per cui è stato sviluppato
-l'interprete. Ad esempio gli interpreti per calcolatrici HP48
+l'interprete. Ad esempio gli interpreti per calcolatrici HP 48
 presentano un comportamento leggermente diverso durante l'esecuzione
 delle istruzioni di SHIFT.
 
@@ -829,9 +822,9 @@ Alcuni videogiochi purtroppo non hanno un gameplay fluido a causa della potenza
 limitata della scheda, nonostante questo Tetris, Blitz, Tic-tac-toe e altri giochi
 analoghi hanno prestazioni più che accettabili.
 
-Infine, per quanto riguarda gli sviluppi futuri abbiamo ipotizzato che si potrebbe ulteriormente
-ottimizzare il software modificando l'interprete in modo tale da interagire direttamente con
-il display, perdendo però così la sua portabilità.
+Infine, per quanto riguarda possibili sviluppi futuri abbiamo ipotizzato che si potrebbe
+ulteriormente ottimizzare il software modificando l'interprete in modo tale da interagire
+direttamente con il display, perdendo però così la sua portabilità.
 
 % TODO - sistemarlo e spostarlo
 %
