@@ -150,17 +150,6 @@ linguaggio Verilog per schede FPGA.
 
 \section{Hardware}\label{sec:hardware}
 
-Il componente hardware principale è il microcontrollore \texttt{STM32F334R8T6}
-(Fig. \ref{fig:stm32f334}), equipaggiato con un processore ARM Cortex-M4
-da 72 \texttt{MHz}, 16 \texttt{Kb} di SRAM e 64 \texttt{Kb}
-di memoria flash. Abbiamo deciso di utilizzare questa scheda anziché
-quella fornitaci durante il corso (\texttt{STM32L053R8T6}) perché quest'ultima
-offriva una quantità di SRAM troppo limitata (solo 8 \texttt{Kb}).
-
-In particolare le ROM dei giochi CHIP-8 possono arrivare a pesare
-fino a 3.5 \texttt{Kb} per questo motivo è stato necessario utilizzare
-una scheda leggermente più potente.
-
 \begin{figure}[h!t]
     \begin{subfigure}[b]{0.45\textwidth}
         \begin{center}
@@ -181,10 +170,16 @@ una scheda leggermente più potente.
     \end{subfigure}
 \end{figure}
 
-Per quanto riguarda lo schermo dell'emulatore abbiamo optato per un display TFT LCD
-a colori retroilluminato (Fig. \ref{fig:ili9341}) basato sul controller \texttt{ILI9341}.
-Il display ha una dimensione di 2.4 pollici, una risoluzione di 320$\times$240\texttt{px} e
-al suo interno è presente un lettore di schede microSD integrato.
+Il componente hardware principale è il microcontrollore \texttt{STM32F334R8T6}
+(Fig. \ref{fig:stm32f334}), equipaggiato con un processore ARM Cortex-M4
+da 72 \texttt{MHz}, 16 \texttt{Kb} di SRAM e 64 \texttt{Kb}
+di memoria flash. Abbiamo deciso di utilizzare questa scheda anziché
+quella fornitaci durante il corso (\texttt{STM32L053R8T6}) perché quest'ultima
+offriva una quantità di SRAM troppo limitata (solo 8 \texttt{Kb}).
+
+In particolare le ROM dei giochi CHIP-8 possono arrivare a pesare
+fino a 3.5 \texttt{Kb} per questo motivo è stato necessario utilizzare
+una scheda leggermente più potente.
 
 \begin{figure}[h!t]
     \begin{subfigure}[b]{0.45\textwidth}
@@ -206,10 +201,10 @@ al suo interno è presente un lettore di schede microSD integrato.
     \end{subfigure}
 \end{figure}
 
-Per poter interagire con l'emulatore abbiamo utilizzato un tastierino matriciale 4$\times$4
-(Fig. \ref{fig:4x4_keypad}) analogo alla tastiera originale del
-COSMAC VIP\footnote{https://en.wikipedia.org/wiki/COSMAC\_VIP}, un microcomputer
-creato da Joseph Weisbecker appositamente per CHIP-8.
+Per quanto riguarda lo schermo dell'emulatore abbiamo optato per un display TFT LCD
+a colori retroilluminato (Fig. \ref{fig:ili9341}) basato sul controller \texttt{ILI9341}.
+Il display ha una dimensione di 2.4 pollici, una risoluzione di 320$\times$240\texttt{px} e
+al suo interno è presente un lettore di schede microSD integrato.
 
 \begin{figure}[h!t]
     \begin{subfigure}[b]{0.45\textwidth}
@@ -228,6 +223,11 @@ creato da Joseph Weisbecker appositamente per CHIP-8.
         \label{fig:4x4_keypad_structure}
     \end{subfigure}
 \end{figure}
+
+Per poter interagire con l'emulatore abbiamo utilizzato un tastierino matriciale 4$\times$4
+(Fig. \ref{fig:4x4_keypad}) analogo alla tastiera originale del
+COSMAC VIP\footnote{https://en.wikipedia.org/wiki/COSMAC\_VIP}, un microcomputer
+creato da Joseph Weisbecker appositamente per CHIP-8.
 
 Infine, per supportare gli effetti sonori riprodotti dai videogiochi CHIP-8 abbiamo
 utilizzato un beeper passivo monotono, che anche essendo un dispositivo molto semplice
@@ -319,6 +319,13 @@ con lo schermo e i gestori per la scheda microSD, per il keypad e per il beeper.
 
 \subsection{Interprete CHIP-8}
 
+\begin{Listing}[h!t] % [ht]
+    \centering
+    \showc*[.8\textwidth]{chip8_struct.c}
+    \caption{La struttura che rappresenta lo stato della macchina virtuale}
+    \label{chip8_struct}
+\end{Listing}
+
 Abbiamo deciso di scrivere l'interprete da zero e per farlo è stato necessario consultare
 le specifiche (de facto standard) che definiscono il comportamento di un interprete CHIP-8
 \cite{cowgod:chip8} e S-CHIP \cite{cowgod:schip}.
@@ -327,13 +334,6 @@ L'interprete ha un'architettura basata su registri e possiede 4 KB di memoria, 1
 general purpose, un registro per gli indirizzi di memoria, un registro per il delay timer,
 un registro per il sound timer, uno stack per gestire le chiamate a subroutine, uno stack pointer
 e un program counter.
-
-\begin{Listing}[h!t] % [ht]
-    \centering
-    \showc*[.8\textwidth]{chip8_struct.c}
-    \caption{La struttura che rappresenta lo stato della macchina virtuale}
-    \label{chip8_struct}
-\end{Listing}
 
 Il delay timer viene utilizzato come cronometro mentre il sound
 timer è utilizzato per gestire gli effetti sonori, quando il suo
@@ -418,15 +418,6 @@ Ciò significa che possiamo comportarci come se tutte le istruzioni richiedesser
 
 \subsubsection{Ottimizzazioni}
 
-È stato necessario introdurre delle ottimizzazioni all'interno
-dell'interprete per poterlo far girare su un microcontrollore.
-
-L'ottimizzazione principale è legata alla rappresentazione dello
-schermo in memoria. Ad alto livello lo schermo può essere visto
-come una matrice di 128x64 pixel monocromi. Una rappresentazione
-simile occuperebbe 8192 byte, dato che ciascun pixel verrebbe
-rappresentato da un byte.
-
 \begin{figure}[h!t]
     \begin{center}
         % \includegraphics[scale=0.3]{figures/screenopt.pdf}
@@ -435,6 +426,15 @@ rappresentato da un byte.
     \caption{Esempio della mappatura di un pixel.}
     \label{fig:screenopt}
 \end{figure}
+
+È stato necessario introdurre delle ottimizzazioni all'interno
+dell'interprete per poterlo far girare su un microcontrollore.
+
+L'ottimizzazione principale è legata alla rappresentazione dello
+schermo in memoria. Ad alto livello lo schermo può essere visto
+come una matrice di 128x64 pixel monocromi. Una rappresentazione
+simile occuperebbe 8192 byte, dato che ciascun pixel verrebbe
+rappresentato da un byte.
 
 Purtroppo il nostro microcontrollore ha a disposizione solamente 16 KB di SRAM, di conseguenza
 una soluzione simile non è praticabile.
@@ -490,11 +490,6 @@ rispetto alla port su SDL2 che viene eseguita su normale computer.
 
 \subsubsection{Architettura software}
 
-In Figura \label{fig:class_diagram} è rappresentato il class diagram, il quale offre una panoramica
-dell'architettura del software. Una differenza da evidenziare rispetto alla proposta iniziale
-è che la classe \texttt{menù} non è più presente perché è stata integrata all'interno della
-classe \texttt{main}.
-
 \begin{figure}[h!t]
     \begin{center}
         \begin{tikzpicture}[scale=0.6, transform shape]
@@ -507,11 +502,10 @@ classe \texttt{main}.
     \label{fig:class_diagram}
 \end{figure}
 
-Il flusso di esecuzione dell'emulatore è mostrato in Figura \ref{fig:sequence_diagram},
-per prima cosa vengono letti i nomi dei file presenti sulla scheda microSD, in seguito
-si entra nel game selection loop dove il giocatore potrà selezionare un gioco, la velocità
-dell'interprete e la piattaforma da emulare. Una volta selezionato il gioco si entrerà nel
-game loop dove inizia la fase di emulazione vera e propria.
+In Figura \label{fig:class_diagram} è rappresentato il class diagram, il quale offre una panoramica
+dell'architettura del software. Una differenza da evidenziare rispetto alla proposta iniziale
+è che la classe \texttt{menù} non è più presente perché è stata integrata all'interno della
+classe \texttt{main}.
 
 \begin{figure}[h!t]
     \begin{center}
@@ -523,20 +517,13 @@ game loop dove inizia la fase di emulazione vera e propria.
     \label{fig:sequence_diagram}
 \end{figure}
 
-\subsubsection{Interfaccia con la scheda microSD}\label{subsubsec:sd}
+Il flusso di esecuzione dell'emulatore è mostrato in Figura \ref{fig:sequence_diagram},
+per prima cosa vengono letti i nomi dei file presenti sulla scheda microSD, in seguito
+si entra nel game selection loop dove il giocatore potrà selezionare un gioco, la velocità
+dell'interprete e la piattaforma da emulare. Una volta selezionato il gioco si entrerà nel
+game loop dove inizia la fase di emulazione vera e propria.
 
-% FIXME
-%
-% Potrebbe chiederci perché non leggiamo il file direttamente nella
-% struct `vm` e non abbiamo una buona risposta...quindi eviterei.
-%
-% \begin{Listing}[h!t] % [ht]
-%     \centering
-%     \setminted[c]{escapeinside=@@}
-%     \showc*[.55\textwidth]{load_game.c}
-%     \caption{Caricamento di un gioco dalla scheda microSD.}
-%     \label{load_game}
-% \end{Listing}
+\subsubsection{Interfaccia con la scheda microSD}\label{subsubsec:sd}
 
 La scheda microSD è utilizzata come memoria di massa dell'emulatore contenente i file
 binari dei videogiochi CHIP-8. È stata formattata con FAT32 e viene gestita utilizzando
@@ -707,12 +694,6 @@ ma questa volta si utilizzano i bit superiori (da 16 a 31) per impostare il pin 
 % TODO
 \subsubsection{Rendering del font}
 
-È noto che non esiste una funzione come la \texttt{printf} su microcontrollori, e di conseguenza
-neanche per stampare una stringa sullo schermo \texttt{ili9341} in quanto non vi è la conoscenza
-ne di uno \textit{standard output} ne di un font. Quindi, è stato necessario trovare un font,
-e di preciso abbiamo utilizzato un font che rappresentasse ogni glifo (simbolo o lettera) come
-bitmap quindi in formato matriciale $8 \times 10$ pixel descrivendoli come 10 numeri a 8 bits.
-
 \begin{figure}[h!t]
     \begin{center}
         \includegraphics[scale=0.5]{./figures/matrix_font.pdf}
@@ -720,6 +701,12 @@ bitmap quindi in formato matriciale $8 \times 10$ pixel descrivendoli come 10 nu
     \caption{Esempio della mappatura di un carattere del font}
     \label{fig:matrix_font}
 \end{figure}
+
+È noto che non esiste una funzione come la \texttt{printf} su microcontrollori, e di conseguenza
+neanche per stampare una stringa sullo schermo \texttt{ili9341} in quanto non vi è la conoscenza
+ne di uno \textit{standard output} ne di un font. Quindi, è stato necessario trovare un font,
+e di preciso abbiamo utilizzato un font che rappresentasse ogni glifo (simbolo o lettera) come
+bitmap quindi in formato matriciale $8 \times 10$ pixel descrivendoli come 10 numeri a 8 bits.
 
 In Figura \ref{fig:matrix_font} è possibile vedere come viene rappresentata graficamente
 la matrice che rappresenta un carattere. Lato implementativo ogni riga viene tradotta in
@@ -746,17 +733,6 @@ a {\setmintedinline[c]{style=friendly}\inlinec{WriteString}}.
 
 \section{Assemblaggio}
 
-Una volta terminato lo sviluppo del software abbiamo deciso di inserire i componenti hardware
-all'interno di un guscio protettivo, in modo da nascondere il cablaggio e i vari pin scoperti,
-lasciando accessibili solamente le parti con cui il giocatore interagisce direttamente.
-
-Il guscio protettivo è stato realizzato con una base di supporto
-polifunzionale\footnote{\url{https://www.gewiss.com/al/it/prodotti/product.1000002.1000090.GW42002}}
-a cui sono state apportate le modifiche appropriate per essere in grado di "montare" correttamente
-il display e il tastierino. Inoltre sono stati effettuati due fori sulla scocca per poter sentire
-più facilmente il beeper e per poter accedere ad un interruttore per l'accensione e spegnimento
-della scheda.
-
 \begin{figure}[h!t]
     \begin{center}
         % \includegraphics[scale=0.3]{figures/screenopt.pdf}
@@ -767,6 +743,17 @@ della scheda.
     \caption{Assemblaggio finale.}
     \label{fig:assemblaggio}
 \end{figure}
+
+Una volta terminato lo sviluppo del software abbiamo deciso di inserire i componenti hardware
+all'interno di un guscio protettivo, in modo da nascondere il cablaggio e i vari pin scoperti,
+lasciando accessibili solamente le parti con cui il giocatore interagisce direttamente.
+
+Il guscio protettivo è stato realizzato con una base di supporto
+polifunzionale\footnote{\url{https://www.gewiss.com/al/it/prodotti/product.1000002.1000090.GW42002}}
+a cui sono state apportate le modifiche appropriate per essere in grado di "montare" correttamente
+il display e il tastierino. Inoltre sono stati effettuati due fori sulla scocca per poter sentire
+più facilmente il beeper e per poter accedere ad un interruttore per l'accensione e spegnimento
+della scheda.
 
 I collegamenti sono rimasti identici a quelli descritti nella sezione
 \ref{subsubsec:collegamenti}, è stata però aggiunta una batteria esterna.
