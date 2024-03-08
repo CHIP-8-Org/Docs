@@ -80,7 +80,7 @@
 \listoffigures
 \listoftables
 
-\newpage
+\clearpage
 
 \begin{center}
 \fbox{
@@ -148,6 +148,8 @@ Sebbene CHIP-8 e S-CHIP siano stati tradizionalmente implementati tramite softwa
 esistono anche implementazioni hardware. Ne citiamo una in particolare scritta nel
 linguaggio Verilog per schede FPGA.
 
+\clearpage
+
 \section{Hardware}\label{sec:hardware}
 
 \begin{figure}[h!t]
@@ -206,6 +208,8 @@ a colori retroilluminato (Fig. \ref{fig:ili9341}) basato sul controller \texttt{
 Il display ha una dimensione di 2.4 pollici, una risoluzione di 320$\times$240\texttt{px} e
 al suo interno è presente un lettore di schede microSD integrato.
 
+\clearpage
+
 \begin{figure}[h!t]
     \begin{subfigure}[b]{0.45\textwidth}
         \begin{center}
@@ -263,6 +267,7 @@ realizzazione del progetto. I costi indicati provengono da negozi online come Am
 
 \textbf{Legenda dei colori in Figura \ref{fig:schema}}
 
+\begin{multicols}{2}
 \begin{itemize}
     \item \textcolor{green}{Verde}: Schermo
     \item \textcolor{blue}{Blu}: Scheda microSD
@@ -272,10 +277,11 @@ realizzazione del progetto. I costi indicati provengono da negozi online come Am
     \item \textcolor{black}{Nero}: GND
     \item \textcolor{red}{Rosso}: Alimentazione
 \end{itemize}
+\end{multicols}
 
 \begin{figure}[h!t]
     \begin{center}
-        \includegraphics[scale=0.50]{figures/STM32_CHIP8.pdf}
+        \includegraphics[scale=1]{figures/STM32_CHIP8.pdf}
     \end{center}
     \caption{
         Schema del progetto.
@@ -390,8 +396,6 @@ Inoltre abbiamo dovuto disaccoppiare la frequenza dell'interprete
 sound timer (costante a 60 Hz). Dove con frequenza dell'interprete
 ci riferiamo al numero di istruzioni che esegue ogni frame.
 
-% TODO - "durante lo sviluppo abbiamo testato due soluzioni diverse"
-
 Inizialmente abbiamo optato per la gestione di una singola istruzione per ciclo di esecuzione,
 di conseguenza il ritardo del game loop risultava variabile e dipendeva dalla frequenza selezionata
 dal giocatore. Per assicurare una frequenza $\mathcal{F}$ di 60 Hz i timer venivano decrementati
@@ -488,6 +492,8 @@ apportare modifiche significative.
 Tuttavia, a causa della potenza limitata della scheda la fluidità del gameplay è inferiore
 rispetto alla port su SDL2 che viene eseguita su normale computer.
 
+\clearpage
+
 \subsubsection{Architettura software}
 
 \begin{figure}[h!t]
@@ -534,20 +540,6 @@ La comunicazione tra il microcontrollore e la scheda microSD avviene tramite il 
 \textit{Serial Peripheral Interface} (SPI), dove il microcontrollore è configurato come
 master e la scheda microSD come slave.
 
-% FIXME - non è una considerazione un po' random messa così?
-%
-% A differenza di altri protocolli come l'I2C, che fanno uso di indirizzi per identificare
-% dispositivi sulla stessa linea di comunicazione, SPI non li utilizza. Tuttavia,
-% SPI rimane un'opzione valida e popolare per la comunicazione su bus nei sistemi embedded.
-
-% FIXME
-%
-% Abbiamo effettuato una piccola ottimizzazione decidendo di non abilitare
-% il Long File Names (LFN) sul filesystem FAT32 della scheda microSD.
-% Questo implica il fatto che tutti i file devono avere un nome di al massimo 13 byte
-% (caratteri ASCII). Cosi' facendo abbiamo risparmiato in termini complessità di computazione,
-% memoria flash e SRAM.
-
 \subsubsection{Menù di selezione}
 
 La selezione del gioco avviene tramite un apposito menù che lista su più pagine tutti i giochi
@@ -564,132 +556,95 @@ Infine, per risolvere il problema degli artefatti grafici al cambio di schermata
 abbiamo implementato una funzione dedicata per "pulire" lo schermo e ottenere un effetto
 di transizione da una schermata all'altra.
 
-% TODO
 \subsubsection{Funzionamento del keypad}\label{subsubsec:keypad}
 
-Inizialmente il keypad è stato gestito tramite polling, ovvero il microcontrollore controllava
-ad ogni aggiornamento dello schermo (60 \texttt{FPS} $\approx$ 16.666 ms) lo stato dei pin di riga
-e di colonna per capire quale tasto fosse stato premuto. Questo approccio è stato scartato in
-favore dell'approccio basato su interrupt, in quanto il polling consumava molte risorse del
-microcontrollore e non garantiva un framerate stabile in quanto in $\sim$16 ms non riusciva a
-garantire la lettura di tutti i pin ed eseguire le restanti operazioni.
+Inizialmente il keypad è stato gestito tramite polling, dove il microcontrollore verificava
+continuamente lo stato dei pin per identificare il tasto premuto. Tuttavia, questo approccio
+è stato abbandonato in favore di un approccio basato su interrupt. Il polling richiedeva
+molte risorse e non garantiva un framerate stabile, poiché non riusciva a leggere tutti
+i pin e completare le operazioni rimanenti entro il limite di ~16 ms imposto dal frame rate
+dell'emulatore (60 FPS).
 
-La procedura di gestione degli interrupt su microcontrollori STM32 è standard. Bisogna implementare
-una funzione che gestisce l'interrupt e bisogna configurare il pin GPIO come sorgente di interrupt.
-Nel nostra situazione, come accennato in sezione \ref{subsubsec:collegamenti}, i pin di riga sono
-stati impostati in modalità \texttt{GPIO\_MODE\_IT\_RISING} (interrupt rising edge) e i pin di
-colonna in modalità \texttt{GPIO\_MODE\_OUTPUT\_PP} (push-pull output) per permettere l'invio
-dell'interrupt alla pressione di un tasto.
+La procedura standard per gestire gli interrupt su microcontrollori STM32 coinvolge
+la configurazione di un pin GPIO come sorgente di interrupt e l'implementazione di
+una funzione per la gestione di un interrupt. Per poter generare un interrupt quando
+un tasto viene premuto abbiamo impostato i pin di riga in modalità \texttt{GPIO\_MODE\_IT\_RISING}
+e i pin di colonna in modalità \texttt{GPIO\_MODE\_OUTPUT\_PP}, come già accennato nella
+sezione \ref{subsubsec:collegamenti}.
 
-Successivamente, viene capito quale tasto è stato premuto, leggendo il valore dei pin
-di riga e di colonna. Per fare ciò, i pin di riga sono stati impostati in modalità
-\texttt{GPIO\_MODE\_INPUT}. Come si può vedere nel listato \ref{keypad} a riga 1,
-nella routine di interrupt viene abilitato il pin di output della prima colonna e in seguito
-per ogni riga viene letto il valore del pin di input per conoscere la seconda coordinata
-del tasto premuto, e in caso sia premuto viene salvato nella struttura dati apposita
-nella macchina virtuale. Questa operazione viene ripetuta per ognuna delle quattro colonne.
-Al termine della routine di interrupt
-({\setmintedinline[c]{style=friendly}\inlinec{void Interrupt_handle_keypad(uint16_t GPIO_Pin)}}),
-i pin di riga vengono re-impostati in modalità \texttt{GPIO\_MODE\_IT\_RISING} per permettere
-l'invio dell'interrupt alla pressione di un nuovo tasto.
+% FIXME
+%
+% Successivamente, viene capito quale tasto è stato premuto, leggendo il valore dei pin
+% di riga e di colonna. Per fare ciò, i pin di riga sono stati impostati in modalità
+% \texttt{GPIO\_MODE\_INPUT}. Come si può vedere nel listato \ref{keypad} a riga 1,
+% nella routine di interrupt viene abilitato il pin di output della prima colonna e in seguito
+% per ogni riga viene letto il valore del pin di input per conoscere la seconda coordinata
+% del tasto premuto, e in caso sia premuto viene salvato nella struttura dati apposita
+% nella macchina virtuale. Questa operazione viene ripetuta per ognuna delle quattro colonne.
+% Al termine della routine di interrupt i pin di riga vengono re-impostati in modalità
+% \texttt{GPIO\_MODE\_IT\_RISING} per permettere l'invio dell'interrupt alla pressione
+% di un nuovo tasto.
+%
+% \begin{Listing}[h!t] % [ht]
+%     \centering
+%     \setminted[c]{escapeinside=@@}
+%     \showc*[.87\textwidth]{keypad.c}
+%     \caption{Gestione dell'interrupt del keypad.}
+%     \label{keypad}
+% \end{Listing}
 
-\begin{Listing}[h!t] % [ht]
-    \centering
-    \setminted[c]{escapeinside=@@}
-    \showc*[.87\textwidth]{keypad.c}
-    \caption{Gestione dell'interrupt del keypad.}
-    \label{keypad}
-\end{Listing}
-
-% TODO
 \subsubsection{Interfaccia con lo schermo}
 
-Il driver per display a cristalli liquidi \texttt{ILI9341} consente la comunicazione tramite due
-diverse interfacce: SPI (spiegata in sezione \ref{subsubsec:sd}) e 8 bit parallela. Mentre
-l'interfaccia SPI richiede meno pin, è più lenta a causa del protocollo seriale. Al contrario,
-l'interfaccia parallela è più veloce ma richiede più pin. Poiché dobbiamo visualizzare
-i videogiochi sullo schermo e aggiornare l'immagine a circa 60 volte al secondo, abbiamo
-optato per l'interfaccia parallela.
+La comunicazione con il controller ILI9341 può avvenire tramite due interfacce diverse:
+SPI oppure parallela ad 8 bit. L'interfaccia SPI richiede meno pin ma è più lenta
+a causa del suo protocollo seriale, mentre l'interfaccia parallela è più veloce ma
+richiede più pin. La decisione di quale interfaccia utilizzare viene presa direttamente
+dal produttore che espone solamente alcuni dei pin del circuito integrato. Poiché il display
+dovrà essere aggiornato 60 volte al secondo abbiamo deciso di acquistare la versione dello
+schermo che supporta l'interfaccia parallela.
 
-L'interfaccia parallela è un metodo di comunicazione che coinvolge l'invio simultaneo di più
-bit di dati attraverso una serie di linee di comunicazione parallele. Nel contesto del display
-LCD ILI9341, l'interfaccia parallela ad 8 bit coinvolge l'uso di otto linee di dati per
-trasmettere informazioni al display. Oltre alle linee di dati, ci possono essere anche altre
-linee di controllo, come quelle per il segnale di sincronizzazione e i segnali di controllo.
-Quando si utilizza l'interfaccia parallela, i dati vengono inviati al display in gruppi di 8 bit
-simultaneamente, consentendo un trasferimento più rapido rispetto all'interfaccia SPI,
-che invia i dati bit per bit in sequenza.
+Durante la fase di inizializzazione i pin di controllo della scheda
+(LCD\_RD, LCD\_WR, LCD\_RS, LCD\_CS, LCD\_RST) vengono impostati in modalità
+GPIO\_MODE\_OUTPUT\_PP tramite le funzioni messe a disposizione dall'HAL.
 
-Per l'inizializzazione abbiamo utilizzato la funzione
-{\setmintedinline[c]{style=friendly}\inlinec{int Init(struct ILI9341_t *ili, struct ILI9341_Pin_t {D7, D6, D5, D4, D3, D2, D1, D0, RST, CS, RS, WR, RD})}},
-prende in input un puntatore alla struttura dati relativa alla scheda e i pin utilizzati per la
-comunicazione parallela. Gli ultimi cinque pin elencati nella firma della funzione sono stati
-inizializzati in modalità \texttt{GPIO\_MODE\_OUTPUT\_PP} grazie alle funzioni della HAL.
+Inoltre, prima di inviare la sequenza di inizializzazione al display, vengono disabilitati i pin
+LCD\_WR e LCD\_RD e viene impostato il pin LCD\_CS a LOW (il controller ILI9341 è attivo basso).
 
-Quindi, prima di inviare la sequenza di inizializzazione al display, è necessario impostare
-uno stato iniziale per la scheda. Questo stato prevede che il pin \texttt{LCD\_CS} sia
-impostato su LOW, mentre i pin \texttt{LCD\_WR} e \texttt{LCD\_RD} devono essere disabilitati.
-Il pin \texttt{LCD\_RST} è utilizzato per resettare lo stato interno del display quando è attivo,
-conosciuto anche come \textit{hardware reset}. Per garantire un avvio sicuro, attiviamo e
-disattiviamo questo pin per resettare la scheda a uno stato noto. Successivamente,
-il pin \texttt{LCD\_RST} rimarrà disabilitato per tutta l'esecuzione.
+Il pin LCD\_RST permette di resettare lo stato interno del display, per questo
+motivo viene attivato e disattivato all'avvio in modo tale da impostare la scheda in uno
+stato conosciuto. Questo pin rimarrà disabilitato per l'intera durata dell'esecuzione.
 
-Una fase molto importante è riservata all'invio della \textit{init sequence}.
-Di base lo schermo è in modalità \textit{sleep}, quindi dobbiamo mandare una sequenza di
-comandi per risvegliarlo. Questa sequenza di comandi è specifica per il display \texttt{ILI9341}
-ed sono spiegati dettagliatamente nel datasheet \cite{ili9341}. Questi comandi sono stati
-inviati al display tramite la funzione
-{\setmintedinline[c]{style=friendly}\inlinec{void WriteCommand(struct ILI9341_t *ili, uint8_t cmd)}}.
-Oltre al comando di \textit{wake up}, è stato eseguito il \textit{reset software},
-l'impostazione del \textit{power control} e la quantità di bit per il colore del pixel (16 bit).
-Tralasciando qualche comando, in fine abbiamo iniviato il comando di \textit{display on}.
+Nel momento in cui la scheda raggiunge uno stato conosciuto bisogna inviare una sequenza di
+comandi per attivare il display, questa sequenza di inizializzazione è spiegata dettagliatamente
+nel datasheet dello schermo \cite{ili9341}.
 
-\begin{Listing}[h!t] % [ht]
-    \centering
-    \setminted[c]{escapeinside=@@}
-    \showc*[.65\textwidth] {ili9341_printscreen.c}
-    \caption{Funzione per la stampa dello schermo.}
-    \label{ili9341_printscreen}
-\end{Listing}
+Inizialmente la funzione che gestisce la stampa sullo schermo si appoggiava all'HAL, questo
+purtroppo generava un overhead non trascurabile che rallentava molto l'emulatore. Per risolvere
+questo problema abbiamo deciso di non appoggiarci più all'HAL per la stampa sullo schermo e
+di scrivere la funzione in bare metal.
 
-Nel file relativo allo schermo, abbiamo implementato diverse funzioni per gestirlo.
-In particolare, la funzione nel listato \ref{ili9341_printscreen} è stata la prima
-implementazione capace di stampare lo schermo. Successivamente, abbiamo basato le altre
-implementazioni su quest'ultima aggiungendo delle \textit{features}.
-Gli elementi comuni a tutte le funzioni di stampa sono la chiamata della funzione
-{\setmintedinline[c]{style=friendly}\inlinec{SetDrawingArea}} che definisce i vertici
-del rettangolo da disegnare e la chiamata della funzione \inlinec{WriteCommand} con argomento
-{\setmintedinline[c]{style=friendly}\inlinec{CMD_MEMORY_WRITE}} per indicare al display
-che stiamo per inviare dei dati.
-
-Tra le necessità che avevamo dopo questa implementazione, c'era quella di poter stampare
-un'immagine più grande. In questi termini abbiamo implementato una versione migliorata,
-la quale accetta in input anche un parametro di \textit{scale}.
-
-Inoltre, è importante notare che entrambe queste implementazioni utilizzato la HAL, questo
-generava un overhead nelle richieste rallentando l'applicativo. Abbiamo risolto questa
-problematica implementato le rispettive due funzioni in \textit{bare metal} le quali
-sfruttano come base le funzioni \texttt{PIN\_LOW\_METAL} e \texttt{PIN\_HIGH\_METAL}
-visibili nel listato \ref{bare_metal_pins}.
-
-\begin{Listing}
-    \centering
-    \mbox{
-        \showc[.45\textwidth]{pin_low_metal.c}
-        \quad
-        \showc[.50\textwidth]{pin_high_metal.c}
-    }
-    \caption{Implementazioni bare metal di \texttt{pin\_high} e \texttt{pin\_low}}
-    \label{bare_metal_pins}
-\end{Listing}
-
-Entrambe queste funzioni impostano il pin GPIO che viene passato come argomento ad
-uno stato \texttt{LOW} o \texttt{HIGH} rispettivamente.  Eseguiamo questa azione scrivendo
-nel registro BSRR (come mostrato nel capitolo 9.4.7 in \cite{STM32F334xx}) (Bit Set/Reset Register).
-Nel caso della funzione \texttt{HIGH}, quando si scrive un 1 in un bit del registro BSRR,
-il corrispondente pin viene impostato su \textit{high}, mentre se si scrive un 0, il pin viene
-lasciato invariato. Nel caso di quella \texttt{LOW}, si accede sempre al registro BSRR,
-ma questa volta si utilizzano i bit superiori (da 16 a 31) per impostare il pin a \textit{low}.
+% FIXME
+%
+% Per risolvere questo problema abbiamo deciso di implementare due funzioni in bare metal.
+%
+% Entrambe le funzioni impostano il pin GPIO che gli viene passato come argomento ad
+% uno stato \texttt{LOW} o \texttt{HIGH} rispettivamente. Eseguiamo questa azione scrivendo
+% nel registro BSRR (come mostrato nel capitolo 9.4.7 in \cite{STM32F334xx}) (Bit Set/Reset Register).
+% Nel caso della funzione \texttt{HIGH}, quando si scrive un 1 in un bit del registro BSRR,
+% il corrispondente pin viene impostato su \textit{high}, mentre se si scrive un 0, il pin viene
+% lasciato invariato. Nel caso di quella \texttt{LOW}, si accede sempre al registro BSRR,
+% ma questa volta si utilizzano i bit superiori (da 16 a 31) per impostare il pin a \textit{low}.
+%
+% \begin{Listing}
+%     \centering
+%     \mbox{
+%         \showc[.45\textwidth]{pin_low_metal.c}
+%         \quad
+%         \showc[.50\textwidth]{pin_high_metal.c}
+%     }
+%     \caption{Implementazioni bare metal di \texttt{pin\_low} e \texttt{pin\_high}}
+%     \label{bare_metal_pins}
+% \end{Listing}
 
 % TODO
 \subsubsection{Rendering del font}
@@ -731,6 +686,8 @@ di esecuzione. La funzione accetta in input un array di stringhe, un array di mo
 esecuzione e un array di velocità di esecuzione, e le restanti informazioni che servono
 a {\setmintedinline[c]{style=friendly}\inlinec{WriteString}}.
 
+\clearpage
+
 \section{Assemblaggio}
 
 \begin{figure}[h!t]
@@ -765,19 +722,16 @@ Consideriamo il risultato finale accettabile come prototipo iniziale, ma se si v
 commercializzare un prodotto simile sarebbe imperativo utilizzare una PCB ad hoc più compatta,
 un guscio su misura e un tastierino di qualità superiore.
 
-\section{Analisi del consumo energetico} % FIXME
+\clearpage
+
+\section{Analisi del consumo energetico}
 
 La scheda \texttt{STM32F334R8T6} può essere alimentata sia tramite un cavo USB che mediante
 una batteria esterna; per rendere l'emulatore portatile abbiamo scelto quest'ultima
-soluzione utilizzando 4 batterie AA da 1.5V ciascuna. Abbiamo collegato le batterie in
-serie e connesso il polo positivo al pin VDD e il polo negativo al pin GND della scheda.
-
-% FIXME
-%
-% Per ottenere una stima dell'autonomia dell'emulatore, abbiamo analizzato il suo consumo
-% energetico utilizzando il software STM32CubeIDE. Il consumo energetico della scheda è di
-% circa 30 mAh, mentre quello del display si aggira intorno ai 50 mAh per la retroilluminazione
-% e 10 mAh per il display TFT. Quindi, complessivamente, l'emulatore consuma circa 90 mAh.
+soluzione utilizzando 4 batterie AA da 1.5V ciascuna. Per passare dall'alimentazione USB a
+quella esterna abbiamo dovuto muovere il jumper JP5 dalla posizione 1-2 alla posizione 2-3
+\cite{stm32:usermanual}. Successivamente, abbiamo collegato le batterie in serie e connesso
+il polo positivo al pin E5V e il polo negativo al pin GND della scheda.
 
 Per ottenere una stima dell'autonomia dell'emulatore, abbiamo analizzato il suo consumo
 energetico utilizzando il software STM32CubeIDE. Il consumo energetico della scheda è di
@@ -806,14 +760,7 @@ Infine, per quanto riguarda possibili sviluppi futuri abbiamo ipotizzato che si 
 ulteriormente ottimizzare il software modificando l'interprete in modo tale da interagire
 direttamente con il display, perdendo però così la sua portabilità.
 
-% TODO - sistemarlo e spostarlo
-%
-% Abbiamo ipotizzato una possibile ottimizzazione che permetta di aggiornare solo la sprite
-% effettivamente modificata rispecchiando così il modo in cui vengono gestite le istruzioni
-% che modificano lo stato dello "schermo" all'interno dell'interprete. Purtroppo però questo
-% non è possibile perché, soprattutto quando l'emulatore è settato ad una frequenza alta,
-% è possibile che più istruzioni di disegno vengano eseguite durante un ciclo di emulazione,
-% per questo motivo siamo forzati a renderizzare lo "schermo" dell'interprete nella sua interezza.
+\clearpage
 
 \addcontentsline{toc}{section}{Riferimenti bibliografici}
 \bibliographystyle{plain}
