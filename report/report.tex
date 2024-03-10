@@ -279,7 +279,7 @@ deve avere solo un tono.
 In Tabella \ref{tab:components} è possibile vedere i componenti utilizzati per la
 realizzazione del progetto. I costi indicati provengono da negozi online come Amazon e eBay.
 
-\subsection{Schema di collegamento}
+\subsection{Schema di collegamento} \label{subsubsec:collegamenti}
 
 \textbf{Legenda dei colori in Figura \ref{fig:schema}}
 
@@ -295,6 +295,8 @@ realizzazione del progetto. I costi indicati provengono da negozi online come Am
 \end{itemize}
 \end{multicols}
 
+\clearpage
+
 \begin{figure}[h!t]
     \begin{center}
         \includegraphics[scale=1]{figures/STM32_CHIP8.pdf}
@@ -304,8 +306,6 @@ realizzazione del progetto. I costi indicati provengono da negozi online come Am
     }
     \label{fig:schema}
 \end{figure}
-
-\subsubsection{Schema di collegamento}\label{subsubsec:collegamenti}
 
 In Figura \ref{fig:schema} è possibile vedere lo schema di collegamento
 dei componenti hardware realizzato utilizzando il software KiCad.
@@ -433,7 +433,7 @@ $\mathcal{F} = 540$, il ritardo di una sleep sarebbe solo di 1.85 ms, e questo g
 non offre una precisione simile. Per questo motivo abbiamo optato per una soluzione differente.
 
 Abbiamo fissato il ritardo del game loop a 16.666 ms, un valore sufficientemente alto da non avere
-problemi di granularità. Inoltre in questo modo otteniamo un frame rate di 60 fps esatti.
+problemi di granularità. Inoltre in questo modo otteniamo un frame rate di 60 FPS esatti.
 Avendo reso il ritardo costante abbiamo dovuto rendere variabile il numero di istruzioni gestite
 durante un ciclo di esecuzione. In particolare vengono gestite n istruzioni per ciclo,
 dove $n = \frac{\mathcal{F}}{60}$. Ad esempio se $\mathcal{F} = 540$, vengono gestite 9 istruzioni
@@ -447,7 +447,6 @@ Ciò significa che possiamo comportarci come se tutte le istruzioni richiedesser
 
 \subsubsection{Ottimizzazioni}
 
-
 È stato necessario introdurre delle ottimizzazioni all'interno
 dell'interprete per poterlo far girare su un microcontrollore.
 
@@ -459,6 +458,8 @@ rappresentato da un byte.
 
 Purtroppo il nostro microcontrollore ha a disposizione solamente 16 Kb di SRAM, di conseguenza
 una soluzione simile non è praticabile.
+
+\clearpage
 
 Per questo motivo abbiamo deciso di rappresentare lo schermo come un array unidimensionale di
 1024 byte, dove ciascun pixel viene rappresentato da un singolo bit. In questo modo otteniamo
@@ -787,7 +788,7 @@ Al giorno d'oggi la maggior parte dei programmatori CHIP-8 utilizza Octo \cite{c
 online scritto in JavaScript, che include un assemblatore per tradurre i programmi in bytecode
 e una macchina virtuale per eseguirli.
 
-In seguito abbiamo incluso un programma CHIP-8 d'esempio:
+Di seguito è riportato un programma CHIP-8 d'esempio:
 
 \begin{lstlisting}[language=CHIP8]
 :alias px v1
